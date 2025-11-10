@@ -17,8 +17,12 @@ Copy-Item "readme.txt" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
 Copy-Item "includes\class-plugin-updater.php" -Destination "temp\$PLUGIN_NAME\includes\"
 
-# Create zip file with correct structure (folder should be at root of zip)
-Compress-Archive -Path "temp\$PLUGIN_NAME" -DestinationPath $OUTPUT_FILE -Force
+# Create zip file with correct structure
+# We need: squash-stats-dashboard/ at root of ZIP with files inside
+# Change to temp directory to zip the folder correctly
+Push-Location temp
+Compress-Archive -Path $PLUGIN_NAME -DestinationPath "..\$OUTPUT_FILE" -Force
+Pop-Location
 
 # Cleanup
 Remove-Item -Path "temp" -Recurse -Force

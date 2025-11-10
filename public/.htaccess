@@ -23,3 +23,9 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Enable geolocation for this site
+<IfModule mod_headers.c>
+    Header always set Permissions-Policy "geolocation=(self)"
+</IfModule>
+

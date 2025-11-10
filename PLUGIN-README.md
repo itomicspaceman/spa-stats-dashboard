@@ -6,7 +6,7 @@ This WordPress plugin embeds the Squash Stats Dashboard from `stats.squashplayer
 
 ### Method 1: Upload ZIP File (Recommended)
 
-1. **Download:** Get `squash-stats-dashboard-1.1.0.zip`
+1. **Download:** Get `squash-stats-dashboard.zip`
 2. **Upload:** WordPress Admin → Plugins → Add New → Upload Plugin
 3. **Install:** Click "Install Now"
 4. **Activate:** Click "Activate Plugin"

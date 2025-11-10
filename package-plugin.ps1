@@ -7,14 +7,14 @@ $OUTPUT_FILE = "$PLUGIN_NAME-$VERSION.zip"
 
 Write-Host "Packaging $PLUGIN_NAME plugin..." -ForegroundColor Green
 
-# Create temporary directory
+# Create temporary directory with correct structure
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME" | Out-Null
 
 # Copy plugin files
 Copy-Item "squash-stats-dashboard-plugin.php" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
 
-# Create zip file
+# Create zip file with correct structure (folder should be at root of zip)
 Compress-Archive -Path "temp\$PLUGIN_NAME" -DestinationPath $OUTPUT_FILE -Force
 
 # Cleanup

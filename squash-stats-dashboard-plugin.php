@@ -3,7 +3,7 @@
  * Plugin Name: Squash Stats Dashboard
  * Plugin URI: https://stats.squashplayers.app
  * Description: Embeds the Squash Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_stats_dashboard]
- * Version: 1.3.2
+ * Version: 1.4.0
  * Author: Itomic Apps
  * Author URI: https://www.itomic.com.au
  * License: GPL v2 or later
@@ -20,6 +20,11 @@ if (!defined('ABSPATH')) {
 // WordPress.org plugins must use the built-in update system
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/class-plugin-updater.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/class-plugin-updater.php';
+}
+
+// Load the admin settings page
+if (is_admin() && file_exists(plugin_dir_path(__FILE__) . 'includes/class-admin-settings.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/class-admin-settings.php';
 }
 
 class Squash_Stats_Dashboard {
@@ -79,8 +84,41 @@ class Squash_Stats_Dashboard {
     public function render_dashboard_shortcode($atts) {
         // Parse shortcode attributes
         $atts = shortcode_atts(array(
+            'dashboard' => '',  // Dashboard name (e.g., 'world', 'country', 'venue-types')
+            'charts' => '',     // Comma-separated chart IDs (e.g., 'venue-map,top-venues')
+            'filter' => '',     // Geographic filter (e.g., 'country:AU', 'region:19', 'continent:5')
+            'title' => '',      // Custom title override for charts/map
             'class' => '',      // Allow custom CSS classes
         ), $atts);
+        
+        // Build the iframe URL
+        $url = $this->dashboard_url;
+        $query_params = array();
+        
+        // Add query parameters if dashboard or charts are specified
+        if (!empty($atts['charts'])) {
+            $url .= '/render';
+            $query_params['charts'] = $atts['charts'];
+        } elseif (!empty($atts['dashboard'])) {
+            $url .= '/render';
+            $query_params['dashboard'] = $atts['dashboard'];
+        }
+        
+        // Add filter parameter if specified
+        if (!empty($atts['filter'])) {
+            $query_params['filter'] = $atts['filter'];
+        }
+        
+        // Add title parameter if specified
+        if (!empty($atts['title'])) {
+            $query_params['title'] = $atts['title'];
+        }
+        
+        // Build query string
+        if (!empty($query_params)) {
+            $url .= '?' . http_build_query($query_params);
+        }
+        // If neither is specified, default to the world dashboard (root URL)
         
         // Generate unique ID for this iframe instance
         $iframe_id = 'squash-dashboard-' . uniqid();
@@ -103,7 +141,7 @@ class Squash_Stats_Dashboard {
                 title="Squash Stats Dashboard">
             </iframe>',
             esc_attr($iframe_id),
-            esc_url($this->dashboard_url),
+            esc_url($url),
             esc_attr($atts['class'])
         );
         

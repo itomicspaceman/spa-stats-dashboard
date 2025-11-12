@@ -3,7 +3,7 @@ Contributors: itomicapps
 Tags: squash, statistics, dashboard, sports, analytics
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 1.3.2
+Stable tag: 1.4.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -16,13 +16,14 @@ The Squash Stats Dashboard plugin allows you to embed comprehensive squash venue
 
 **Features:**
 
-* **Shortcode Based:** Use `[squash_stats_dashboard]` anywhere
-* **Flexible:** Create any page/URL you want
-* **No iFrame:** Direct HTML injection for better performance and SEO
+* **Multiple Dashboards:** Choose from world stats, country stats, or venue types dashboards
+* **Individual Charts:** Select specific charts to create custom dashboards
+* **Visual Admin Interface:** Browse and select charts with thumbnails in WordPress admin
+* **Chart Gallery:** Public gallery to preview all available charts before installing
+* **Shortcode Based:** Use `[squash_stats_dashboard]` anywhere with flexible parameters
 * **Auto-Updates:** Automatic update notifications from GitHub releases
-* **Smart Caching:** Intelligent caching of manifest and content
-* **Multiple Instances:** Use on multiple pages if needed
-* **Customizable:** Optional height and CSS class parameters
+* **Complete Isolation:** iframe-based embedding prevents conflicts
+* **Multiple Instances:** Use on multiple pages with different chart combinations
 
 **Data Displayed:**
 
@@ -58,22 +59,51 @@ The dashboard is built using Laravel 12 and Vite for asset compilation. See the 
 
 **Usage:**
 
+1. Go to WordPress Admin → Settings → Squash Stats
+2. Browse available dashboards and charts
+3. Select a full dashboard or choose individual charts
+4. Click "Copy Shortcode"
+5. Paste the shortcode into any page or post
+6. Publish!
+
+**Or manually:**
+
 1. Create a new WordPress page (or edit an existing one)
-2. Add the shortcode: `[squash_stats_dashboard]`
+2. Add a shortcode (see examples below)
 3. Publish!
 
 == Frequently Asked Questions ==
 
 = How do I use this plugin? =
 
-Simply add the shortcode `[squash_stats_dashboard]` to any WordPress page or post where you want the dashboard to appear.
+Go to Settings → Squash Stats in WordPress admin to browse and select charts. Or manually add a shortcode to any page:
+
+**Full Dashboards:**
+* `[squash_stats_dashboard]` - Default world dashboard
+* `[squash_stats_dashboard dashboard="country"]` - Country statistics
+* `[squash_stats_dashboard dashboard="venue-types"]` - Venue types analysis
+
+**Individual Charts:**
+* `[squash_stats_dashboard charts="venue-map"]` - Just the map
+* `[squash_stats_dashboard charts="summary-stats,top-venues"]` - Multiple charts
+* `[squash_stats_dashboard charts="venue-map,continental-breakdown,timeline"]` - Custom combination
+
+= What dashboards are available? =
+
+* **World Stats** - Complete global overview with all charts
+* **Country Stats** - Country-specific analysis
+* **Venue Types** - Focus on venue categories and characteristics
+
+= What individual charts can I use? =
+
+11 charts available: summary-stats, venue-map, continental-breakdown, subcontinental-breakdown, timeline, top-venues, court-distribution, top-courts, venue-categories, website-stats, outdoor-courts
+
+View the full gallery at https://stats.squashplayers.app/charts
 
 = Can I customize the appearance? =
 
-Yes! You can use optional parameters:
-* `[squash_stats_dashboard height="2000px"]` - Set a custom minimum height
-* `[squash_stats_dashboard class="my-custom-class"]` - Add custom CSS classes
-* `[squash_stats_dashboard height="2000px" class="full-width"]` - Use both together
+Yes! You can add custom CSS classes:
+* `[squash_stats_dashboard class="my-custom-class"]`
 
 = Can I use this on multiple pages? =
 
@@ -99,6 +129,18 @@ Yes! The shortcode should work with most page builders that support WordPress sh
 4. Dashboard statistics overview
 
 == Changelog ==
+
+= 1.4.0 (2025-11-11) =
+* **MAJOR FEATURE:** Added multiple dashboard support (world, country, venue-types)
+* **MAJOR FEATURE:** Added individual chart selection - mix and match any charts
+* **NEW:** WordPress admin settings page with visual chart selector
+* **NEW:** Public chart gallery at stats.squashplayers.app/charts
+* **NEW:** 11 individual charts available for custom combinations
+* **NEW:** Shortcode now supports `dashboard` and `charts` parameters
+* **IMPROVED:** Modular architecture with reusable Blade components
+* **IMPROVED:** Chart Registry and Dashboard Registry services
+* **IMPROVED:** Dynamic chart rendering system
+* **IMPROVED:** Comprehensive documentation with examples
 
 = 1.3.2 (2025-11-11) =
 * Fixed WordPress Plugin Check compatibility issues

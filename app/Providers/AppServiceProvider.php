@@ -19,6 +19,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Make ChartHelper available in Blade views
+        \Illuminate\Support\Facades\Blade::directive('chartRelevant', function ($expression) {
+            return "<?php if (\App\Helpers\ChartHelper::isChartRelevant($expression, request()->get('filter'))): ?>";
+        });
+        
+        \Illuminate\Support\Facades\Blade::directive('endchartRelevant', function () {
+            return "<?php endif; ?>";
+        });
     }
 }

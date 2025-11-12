@@ -1,11 +1,31 @@
 <?php
 
+use App\Http\Controllers\ChartController;
+use App\Http\Controllers\GeographicAreasController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Response;
 
+// Dashboard Routes
 Route::get('/', function () {
-    return view('dashboard');
-});
+    return view('dashboards.world');
+})->name('dashboard.world');
+
+Route::get('/country/{code?}', function ($code = null) {
+    return view('dashboards.country', compact('code'));
+})->name('dashboard.country');
+
+Route::get('/venue-types', function () {
+    return view('dashboards.venue-types');
+})->name('dashboard.venue-types');
+
+// Dynamic chart rendering
+Route::get('/render', [ChartController::class, 'render'])->name('charts.render');
+
+// Chart gallery
+Route::get('/charts', [ChartController::class, 'gallery'])->name('charts.gallery');
+
+// Geographic areas reference
+Route::get('/geographic-areas', [GeographicAreasController::class, 'index'])->name('geographic-areas');
 
 // Serve build assets with CORS headers
 // Use Request to get the full path including slashes

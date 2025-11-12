@@ -1,0 +1,287 @@
+/**
+ * Admin Styles for Squash Stats Dashboard Plugin
+ */
+
+.squash-stats-admin-container {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+/* Loading and Error States */
+.squash-loading {
+    text-align: center;
+    padding: 40px;
+}
+
+.squash-loading .spinner {
+    float: none;
+    margin: 0 auto 10px;
+}
+
+/* Tabs */
+.squash-tab-content {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-top: none;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Grid Layout */
+.squash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+/* Card Styles */
+.squash-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background: #fff;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.squash-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #2271b1;
+}
+
+.squash-card.selected {
+    border-color: #2271b1;
+    background: #f0f6fc;
+}
+
+.squash-card-thumbnail {
+    width: 100%;
+    height: 150px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.squash-card-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.squash-card-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0 0 5px;
+}
+
+.squash-card-description {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 10px;
+}
+
+.squash-card-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.squash-card-checkbox {
+    margin-top: 10px;
+}
+
+.squash-card-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+/* Filter */
+.squash-filter {
+    margin: 15px 0;
+}
+
+.squash-filter label {
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.squash-filter select {
+    min-width: 200px;
+}
+
+/* Selected Summary */
+.squash-selected-summary {
+    background: #f0f6fc;
+    border: 1px solid #2271b1;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.squash-selected-summary h3 {
+    margin-top: 0;
+}
+
+#selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.selected-chart-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid #2271b1;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.selected-chart-tag .remove {
+    cursor: pointer;
+    color: #d63638;
+    font-weight: bold;
+}
+
+.selected-chart-tag .remove:hover {
+    color: #b32d2e;
+}
+
+/* Shortcode Output */
+.squash-shortcode-output {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.squash-shortcode-output h3 {
+    margin-top: 0;
+}
+
+/* Optional Parameters */
+.squash-optional-params {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.squash-optional-params h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.squash-param-group {
+    margin-bottom: 15px;
+}
+
+.squash-param-group:last-child {
+    margin-bottom: 0;
+}
+
+.squash-param-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.squash-param-group label strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.squash-param-group .description {
+    display: block;
+    font-weight: normal;
+    color: #666;
+    font-size: 12px;
+}
+
+.squash-param-group input[type="text"] {
+    width: 100%;
+    max-width: 500px;
+}
+
+.squash-shortcode-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f6f7f7;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.squash-shortcode-box code {
+    flex: 1;
+    font-size: 14px;
+    background: transparent;
+    padding: 0;
+}
+
+.squash-shortcode-box button {
+    white-space: nowrap;
+}
+
+.squash-shortcode-box button .dashicons {
+    line-height: 1.4;
+}
+
+/* Success Message */
+.squash-copy-success {
+    color: #00a32a;
+    font-weight: 600;
+    margin-left: 10px;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Radio Buttons for Dashboards */
+.squash-card-radio {
+    margin-top: 10px;
+}
+
+.squash-card-radio label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .squash-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .squash-shortcode-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+

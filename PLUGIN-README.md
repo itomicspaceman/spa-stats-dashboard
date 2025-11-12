@@ -2,6 +2,17 @@
 
 This WordPress plugin embeds the Squash Stats Dashboard from `stats.squashplayers.app` into your WordPress site using a simple shortcode.
 
+## Features
+
+- **Multiple Dashboards:** Choose from world stats, country stats, or venue types
+- **Individual Charts:** Select specific charts to create custom dashboards
+- **Visual Admin Interface:** Browse and select charts with thumbnails
+- **Chart Gallery:** Preview all charts at https://stats.squashplayers.app/charts
+- **Flexible Shortcodes:** Support for `dashboard` and `charts` parameters
+- **Auto-Updates:** Automatic notifications for new versions (self-hosted)
+- **Complete Isolation:** iframe-based embedding prevents conflicts
+- **11 Available Charts:** Mix and match any combination
+
 ## Installation
 
 ### Method 1: Upload ZIP File (Recommended)
@@ -28,25 +39,84 @@ This WordPress plugin embeds the Squash Stats Dashboard from `stats.squashplayer
 
 ## Usage
 
-### Basic Shortcode
+### Admin Interface (Recommended)
 
-Simply add this shortcode to any WordPress page or post:
+1. Go to **WordPress Admin → Settings → Squash Stats**
+2. Browse available dashboards and charts with thumbnails
+3. Select a full dashboard or choose individual charts
+4. Click **"Copy Shortcode"**
+5. Paste into any page or post
+
+### Manual Shortcode Usage
+
+#### Full Dashboards
 
 ```
 [squash_stats_dashboard]
 ```
+Default world dashboard with all charts
+
+```
+[squash_stats_dashboard dashboard="country"]
+```
+Country-specific statistics
+
+```
+[squash_stats_dashboard dashboard="venue-types"]
+```
+Venue types and categories analysis
+
+#### Individual Charts
+
+```
+[squash_stats_dashboard charts="venue-map"]
+```
+Just the interactive map
+
+```
+[squash_stats_dashboard charts="summary-stats,top-venues,top-courts"]
+```
+Multiple specific charts
+
+```
+[squash_stats_dashboard charts="venue-map,continental-breakdown,timeline"]
+```
+Custom combination
+
+### Available Charts
+
+- `summary-stats` - Key metrics overview
+- `venue-map` - Interactive global map
+- `continental-breakdown` - Venues & courts by continent
+- `subcontinental-breakdown` - Venues & courts by sub-continent
+- `timeline` - Venues added over time
+- `top-venues` - Top 20 countries by venues
+- `court-distribution` - Courts per venue
+- `top-courts` - Top 20 countries by courts
+- `venue-categories` - Venues by category
+- `website-stats` - Venues with websites
+- `outdoor-courts` - Top 20 countries by outdoor courts
 
 ### Examples
 
-**Example 1: Simple Usage**
-1. Create a new page: "Squash Stats - NEW"
-2. Set the URL slug to: `squash-venues-courts-world-stats-new`
-3. Add the shortcode: `[squash_stats_dashboard]`
-4. Publish!
-
-**Example 2: Custom Height**
+**Example 1: Default Dashboard**
 ```
-[squash_stats_dashboard height="2000px"]
+[squash_stats_dashboard]
+```
+
+**Example 2: Country Dashboard**
+```
+[squash_stats_dashboard dashboard="country"]
+```
+
+**Example 3: Just the Map**
+```
+[squash_stats_dashboard charts="venue-map"]
+```
+
+**Example 4: Custom Combination**
+```
+[squash_stats_dashboard charts="summary-stats,venue-map,top-venues,top-courts"]
 ```
 
 **Example 3: Custom CSS Class**
@@ -54,21 +124,10 @@ Simply add this shortcode to any WordPress page or post:
 [squash_stats_dashboard class="my-custom-class"]
 ```
 
-**Example 4: Both**
+**Example 5: With Custom CSS Class**
 ```
-[squash_stats_dashboard height="2000px" class="full-width-dashboard"]
+[squash_stats_dashboard class="my-custom-class"]
 ```
-
-## Features
-
-- ✅ **Shortcode Based:** Use `[squash_stats_dashboard]` anywhere
-- ✅ **Flexible:** Create any page/URL you want
-- ✅ **No iFrame:** Direct HTML injection for better performance and SEO
-- ✅ **Asset Optimization:** Loads CSS/JS from stats.squashplayers.app
-- ✅ **Smart Caching:** Intelligent caching of manifest and content
-- ✅ **WordPress Integration:** Works seamlessly with your WordPress theme
-- ✅ **Multiple Instances:** Use on multiple pages if needed
-- ✅ **Customizable:** Optional height and CSS class parameters
 
 ## Technical Details
 
@@ -141,6 +200,18 @@ For issues or questions:
 GPL v2 or later
 
 ## Changelog
+
+### 1.4.0 (2025-11-11)
+- **MAJOR FEATURE:** Added multiple dashboard support (world, country, venue-types)
+- **MAJOR FEATURE:** Added individual chart selection - mix and match any charts
+- **NEW:** WordPress admin settings page (Settings → Squash Stats) with visual chart selector
+- **NEW:** Public chart gallery at https://stats.squashplayers.app/charts
+- **NEW:** 11 individual charts available for custom combinations
+- **NEW:** Shortcode now supports `dashboard` and `charts` parameters
+- **IMPROVED:** Modular Laravel architecture with reusable Blade components
+- **IMPROVED:** Chart Registry and Dashboard Registry services for metadata
+- **IMPROVED:** Dynamic chart rendering system via `/render` endpoint
+- **IMPROVED:** Comprehensive documentation with shortcode examples
 
 ### 1.3.2 (2025-11-11)
 - Fixed WordPress Plugin Check compatibility issues

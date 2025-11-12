@@ -10,17 +10,85 @@ use Illuminate\Support\Facades\DB;
 class SquashDataAggregator
 {
     /**
+     * Apply geographic filter to a query builder.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
+     * @param string|null $filter Format: "type:code" (e.g., "country:US", "continent:5", "region:10", "state:810")
+     * @param bool $hasRegionsJoin Whether the query already has a regions join
+     * @param bool $hasContinentsJoin Whether the query already has a continents join
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function applyGeographicFilter($query, ?string $filter, bool $hasRegionsJoin = false, bool $hasContinentsJoin = false)
+    {
+        if (!$filter) {
+            return $query;
+        }
+
+        // Parse filter format: "type:code"
+        $parts = explode(':', $filter, 2);
+        if (count($parts) !== 2) {
+            return $query;
+        }
+
+        [$type, $code] = $parts;
+
+        switch ($type) {
+            case 'continent':
+                // Filter by continent ID - add joins only if not already present
+                if (!$hasRegionsJoin) {
+                    $query->join('regions', 'countries.region_id', '=', 'regions.id');
+                }
+                if (!$hasContinentsJoin) {
+                    $query->join('continents', 'regions.continent_id', '=', 'continents.id');
+                }
+                $query->where('continents.id', $code);
+                break;
+
+            case 'region':
+                // Filter by region ID - add join only if not already present
+                if (!$hasRegionsJoin) {
+                    $query->join('regions', 'countries.region_id', '=', 'regions.id');
+                }
+                $query->where('regions.id', $code);
+                break;
+
+            case 'country':
+                // Filter by country (alpha_2_code, alpha_3_code, or ID)
+                if (is_numeric($code)) {
+                    $query->where('countries.id', $code);
+                } elseif (strlen($code) === 2) {
+                    $query->where('countries.alpha_2_code', strtoupper($code));
+                } elseif (strlen($code) === 3) {
+                    $query->where('countries.alpha_3_code', strtoupper($code));
+                }
+                break;
+
+            case 'state':
+                // Filter by state ID
+                $query->where('venues.state_id', $code);
+                break;
+        }
+
+        return $query;
+    }
+
+    /**
      * Get comprehensive country-level statistics.
      *
+     * @param string|null $filter Geographic filter (e.g., "country:US", "continent:5")
      * @return array
      */
-    public function countryStats(): array
+    public function countryStats(?string $filter = null): array
     {
-        $stats = DB::connection('squash_remote')
+        $query = DB::connection('squash_remote')
             ->table('venues')
             ->join('countries', 'venues.country_id', '=', 'countries.id')
-            ->where('venues.status', '1') // Approved only
-            ->select([
+            ->where('venues.status', '1'); // Approved only
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $stats = $query->select([
                 'countries.id',
                 'countries.name',
                 'countries.alpha_2_code',
@@ -51,12 +119,24 @@ class SquashDataAggregator
             return $country;
         });
 
-        return [
-            'total_countries' => Country::count(),
-            'countries_with_venues' => $stats->count(),
-            'total_venues' => Venue::approved()->count(),
-            'total_courts' => (int) Venue::approved()->sum('no_of_courts'),
-        ];
+        // Calculate summary stats based on filter
+        if ($filter) {
+            // When filtered, calculate from the filtered stats
+            return [
+                'total_countries' => $stats->count(),
+                'countries_with_venues' => $stats->count(),
+                'total_venues' => (int) $stats->sum('venues'),
+                'total_courts' => (int) $stats->sum('courts'),
+            ];
+        } else {
+            // Global stats
+            return [
+                'total_countries' => Country::count(),
+                'countries_with_venues' => $stats->count(),
+                'total_venues' => Venue::approved()->count(),
+                'total_courts' => (int) Venue::approved()->sum('no_of_courts'),
+            ];
+        }
     }
 
     /**
@@ -64,9 +144,10 @@ class SquashDataAggregator
      *
      * @param string $metric
      * @param int $limit
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function topCountriesBy(string $metric = 'venues', int $limit = 30): array
+    public function topCountriesBy(string $metric = 'venues', int $limit = 30, ?string $filter = null): array
     {
         $validMetrics = ['venues', 'courts', 'glass_courts', 'outdoor_courts'];
         if (!in_array($metric, $validMetrics)) {
@@ -83,11 +164,15 @@ class SquashDataAggregator
         $alias = $selectMap[$metric]['alias'];
         $expression = $selectMap[$metric]['expression'];
 
-        $results = DB::connection('squash_remote')
+        $query = DB::connection('squash_remote')
             ->table('venues')
             ->join('countries', 'venues.country_id', '=', 'countries.id')
-            ->where('venues.status', '1')
-            ->select([
+            ->where('venues.status', '1');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $results = $query->select([
                 'countries.name',
                 'countries.alpha_2_code',
                 DB::raw("{$expression} as {$alias}"),
@@ -103,15 +188,23 @@ class SquashDataAggregator
     /**
      * Get court distribution (how many courts per venue).
      *
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function courtDistribution(): array
+    public function courtDistribution(?string $filter = null): array
     {
-        // Get all approved venues
-        $allVenues = Venue::approved()
-            ->select('no_of_courts', DB::raw('COUNT(*) as count'))
-            ->groupBy('no_of_courts')
-            ->orderBy('no_of_courts')
+        // Build query for approved venues
+        $query = DB::connection('squash_remote')
+            ->table('venues')
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $allVenues = $query->select('venues.no_of_courts', DB::raw('COUNT(*) as count'))
+            ->groupBy('venues.no_of_courts')
+            ->orderBy('venues.no_of_courts')
             ->get();
 
         // Initialize buckets for individual court counts (1-10, 11+, Unknown)
@@ -157,9 +250,10 @@ class SquashDataAggregator
      * Get timeline data showing venue growth over time.
      *
      * @param string $interval
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function timeline(string $interval = 'monthly'): array
+    public function timeline(string $interval = 'monthly', ?string $filter = null): array
     {
         $dateFormat = match ($interval) {
             'yearly' => '%Y',
@@ -168,9 +262,16 @@ class SquashDataAggregator
             default => '%Y-%m',
         };
 
-        $timeline = Venue::approved()
-            ->select(DB::raw("DATE_FORMAT(created_at, '{$dateFormat}') as period"), DB::raw('COUNT(*) as count'))
-            ->whereNotNull('created_at')
+        $query = DB::connection('squash_remote')
+            ->table('venues')
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1')
+            ->whereNotNull('venues.created_at');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $timeline = $query->select(DB::raw("DATE_FORMAT(venues.created_at, '{$dateFormat}') as period"), DB::raw('COUNT(*) as count'))
             ->groupBy('period')
             ->orderBy('period')
             ->get();
@@ -181,16 +282,22 @@ class SquashDataAggregator
     /**
      * Get venue types breakdown (membership model, categories).
      *
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function venueTypes(): array
+    public function venueTypes(?string $filter = null): array
     {
         // Category breakdown
-        $categories = DB::connection('squash_remote')
+        $query = DB::connection('squash_remote')
             ->table('venues')
             ->join('venue_categories', 'venues.category_id', '=', 'venue_categories.id')
-            ->where('venues.status', '1')
-            ->select('venue_categories.name', DB::raw('COUNT(*) as venue_count'))
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $categories = $query->select('venue_categories.name', DB::raw('COUNT(*) as venue_count'))
             ->groupBy('venue_categories.id', 'venue_categories.name')
             ->orderBy('venue_count', 'desc')
             ->get();
@@ -208,32 +315,47 @@ class SquashDataAggregator
      * Get anonymized map points for visualization.
      * Does NOT include venue names, IDs, or addresses to prevent scraping.
      *
-     * @param array $filters
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function mapPoints(array $filters = []): array
+    public function mapPoints(?string $filter = null): array
     {
-        $query = Venue::approved()->withCoordinates();
+        $query = DB::connection('squash_remote')
+            ->table('venues')
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1')
+            ->whereNotNull('venues.latitude')
+            ->whereNotNull('venues.longitude')
+            ->where('venues.latitude', '!=', 0)
+            ->where('venues.longitude', '!=', 0);
 
-        // Apply optional filters
-        if (isset($filters['country_id'])) {
-            $query->where('country_id', $filters['country_id']);
-        }
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
 
-        if (isset($filters['min_courts'])) {
-            $query->where('no_of_courts', '>=', $filters['min_courts']);
-        }
-
-        $venues = $query->with('country')->get();
+        $venues = $query->select([
+                'venues.id',
+                'venues.name',
+                'venues.physical_address',
+                'venues.suburb',
+                'venues.state',
+                'venues.latitude',
+                'venues.longitude',
+                'venues.no_of_courts',
+                'venues.no_of_glass_courts',
+                'venues.no_of_outdoor_courts',
+                'venues.telephone',
+                'venues.website',
+                'countries.name as country_name',
+                'countries.alpha_2_code as country_code',
+            ])
+            ->get();
 
         $features = $venues->map(function ($venue) {
             // Build full address
             $addressParts = array_filter([
-                $venue->address_line_1,
-                $venue->address_line_2,
+                $venue->physical_address,
                 $venue->suburb,
                 $venue->state,
-                $venue->postcode,
             ]);
             $fullAddress = implode(', ', $addressParts);
             
@@ -255,8 +377,8 @@ class SquashDataAggregator
                     'outdoor_courts' => $venue->no_of_outdoor_courts,
                     'telephone' => $venue->telephone ?? null,
                     'website' => $venue->website ?? null,
-                    'country' => $venue->country->name ?? 'Unknown',
-                    'country_code' => $venue->country->alpha_2_code ?? null,
+                    'country' => $venue->country_name ?? 'Unknown',
+                    'country_code' => $venue->country_code ?? null,
                     'suburb' => $venue->suburb,
                 ],
             ];
@@ -271,17 +393,23 @@ class SquashDataAggregator
     /**
      * Get regional breakdown of venues and courts.
      *
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function regionalBreakdown(): array
+    public function regionalBreakdown(?string $filter = null): array
     {
-        $continents = DB::connection('squash_remote')
+        $query = DB::connection('squash_remote')
             ->table('venues')
             ->join('countries', 'venues.country_id', '=', 'countries.id')
             ->join('regions', 'countries.region_id', '=', 'regions.id')
             ->join('continents', 'regions.continent_id', '=', 'continents.id')
-            ->where('venues.status', '1')
-            ->select([
+            ->where('venues.status', '1');
+
+        // Apply geographic filter (but note: filtering by continent on a continent breakdown doesn't make much sense)
+        // This is mainly for consistency and for potential region/country/state filters
+        $query = $this->applyGeographicFilter($query, $filter, true, true);
+
+        $continents = $query->select([
                 'continents.id',
                 'continents.name',
                 DB::raw('COUNT(DISTINCT venues.id) as venues'),
@@ -300,16 +428,21 @@ class SquashDataAggregator
     /**
      * Get sub-continental breakdown of venues and courts.
      *
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function subContinentalBreakdown(): array
+    public function subContinentalBreakdown(?string $filter = null): array
     {
-        $regions = DB::connection('squash_remote')
+        $query = DB::connection('squash_remote')
             ->table('venues')
             ->join('countries', 'venues.country_id', '=', 'countries.id')
             ->join('regions', 'countries.region_id', '=', 'regions.id')
-            ->where('venues.status', '1')
-            ->select([
+            ->where('venues.status', '1');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter, true, false);
+
+        $regions = $query->select([
                 'regions.id',
                 'regions.name',
                 DB::raw('COUNT(DISTINCT venues.id) as venues'),
@@ -390,6 +523,70 @@ class SquashDataAggregator
     }
 
     /**
+     * Get venues and courts breakdown by state/county (with filter support).
+     *
+     * @param string|null $filter
+     * @return array
+     */
+    public function stateBreakdown(?string $filter = null): array
+    {
+        $query = DB::connection('squash_remote')
+            ->table('venues')
+            ->join('states', 'venues.state_id', '=', 'states.id')
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $states = $query->select([
+                'states.name',
+                DB::raw('COUNT(*) as venues'),
+                DB::raw('SUM(COALESCE(venues.no_of_courts, 0)) as courts'),
+            ])
+            ->groupBy('states.id', 'states.name')
+            ->orderBy('venues', 'desc')
+            ->get();
+
+        return $states->toArray();
+    }
+
+    /**
+     * Get top venues by number of courts.
+     *
+     * @param int $limit
+     * @param string|null $filter
+     * @return array
+     */
+    public function topVenuesByCourts(int $limit = 20, ?string $filter = null): array
+    {
+        $query = DB::connection('squash_remote')
+            ->table('venues')
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1')
+            ->whereNotNull('venues.no_of_courts')
+            ->where('venues.no_of_courts', '>', 0);
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $results = $query->select([
+                'venues.name',
+                'venues.physical_address',
+                'venues.suburb',
+                'venues.state',
+                'venues.no_of_courts',
+                'venues.g_place_id',
+                'countries.name as country_name',
+            ])
+            ->orderBy('venues.no_of_courts', 'desc')
+            ->limit($limit)
+            ->get();
+
+        return $results->toArray();
+    }
+
+    /**
      * Get top countries with multiple metrics for comparison.
      *
      * @param int $limit
@@ -424,16 +621,22 @@ class SquashDataAggregator
     /**
      * Get website statistics for venues.
      *
+     * @param string|null $filter Geographic filter
      * @return array
      */
-    public function websiteStats(): array
+    public function websiteStats(?string $filter = null): array
     {
-        $stats = DB::connection('squash_remote')
+        $query = DB::connection('squash_remote')
             ->table('venues')
-            ->where('status', '1')
-            ->selectRaw('
-                SUM(CASE WHEN website IS NOT NULL AND website != "" THEN 1 ELSE 0 END) as with_website,
-                SUM(CASE WHEN website IS NULL OR website = "" THEN 1 ELSE 0 END) as without_website
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1');
+
+        // Apply geographic filter
+        $query = $this->applyGeographicFilter($query, $filter);
+
+        $stats = $query->selectRaw('
+                SUM(CASE WHEN venues.website IS NOT NULL AND venues.website != "" THEN 1 ELSE 0 END) as with_website,
+                SUM(CASE WHEN venues.website IS NULL OR venues.website = "" THEN 1 ELSE 0 END) as without_website
             ')
             ->first();
 

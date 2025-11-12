@@ -18,10 +18,13 @@ class SquashStatsController extends Controller
     /**
      * Get comprehensive country statistics.
      */
-    public function countryStats(): JsonResponse
+    public function countryStats(Request $request): JsonResponse
     {
-        $data = Cache::remember('squash:country_stats', 10800, function () {
-            return $this->aggregator->countryStats();
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:country_stats:{$filter}" : 'squash:country_stats';
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->countryStats($filter);
         });
 
         return response()->json($data);
@@ -35,6 +38,7 @@ class SquashStatsController extends Controller
         $validator = Validator::make($request->all(), [
             'metric' => 'string|in:venues,courts,glass_courts,outdoor_courts',
             'limit' => 'integer|min:1|max:100',
+            'filter' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -46,11 +50,14 @@ class SquashStatsController extends Controller
 
         $metric = $request->input('metric', 'venues');
         $limit = $request->input('limit', 30);
+        $filter = $request->input('filter');
 
-        $cacheKey = "squash:top_countries:{$metric}:{$limit}";
+        $cacheKey = $filter 
+            ? "squash:top_countries:{$metric}:{$limit}:{$filter}"
+            : "squash:top_countries:{$metric}:{$limit}";
 
-        $data = Cache::remember($cacheKey, 10800, function () use ($metric, $limit) {
-            return $this->aggregator->topCountriesBy($metric, $limit);
+        $data = Cache::remember($cacheKey, 10800, function () use ($metric, $limit, $filter) {
+            return $this->aggregator->topCountriesBy($metric, $limit, $filter);
         });
 
         return response()->json($data);
@@ -59,10 +66,13 @@ class SquashStatsController extends Controller
     /**
      * Get court distribution data.
      */
-    public function courtDistribution(): JsonResponse
+    public function courtDistribution(Request $request): JsonResponse
     {
-        $data = Cache::remember('squash:court_distribution', 10800, function () {
-            return $this->aggregator->courtDistribution();
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:court_distribution:{$filter}" : 'squash:court_distribution';
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->courtDistribution($filter);
         });
 
         return response()->json($data);
@@ -75,6 +85,7 @@ class SquashStatsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'interval' => 'string|in:daily,weekly,monthly,yearly',
+            'filter' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -85,10 +96,13 @@ class SquashStatsController extends Controller
         }
 
         $interval = $request->input('interval', 'monthly');
-        $cacheKey = "squash:timeline:{$interval}";
+        $filter = $request->input('filter');
+        $cacheKey = $filter 
+            ? "squash:timeline:{$interval}:{$filter}"
+            : "squash:timeline:{$interval}";
 
-        $data = Cache::remember($cacheKey, 10800, function () use ($interval) {
-            return $this->aggregator->timeline($interval);
+        $data = Cache::remember($cacheKey, 10800, function () use ($interval, $filter) {
+            return $this->aggregator->timeline($interval, $filter);
         });
 
         return response()->json($data);
@@ -97,10 +111,13 @@ class SquashStatsController extends Controller
     /**
      * Get venue types breakdown.
      */
-    public function venueTypes(): JsonResponse
+    public function venueTypes(Request $request): JsonResponse
     {
-        $data = Cache::remember('squash:venue_types', 10800, function () {
-            return $this->aggregator->venueTypes();
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:venue_types:{$filter}" : 'squash:venue_types';
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->venueTypes($filter);
         });
 
         return response()->json($data);
@@ -112,8 +129,7 @@ class SquashStatsController extends Controller
     public function mapData(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'country_id' => 'integer|exists:squash_remote.countries,id',
-            'min_courts' => 'integer|min:1',
+            'filter' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -123,12 +139,11 @@ class SquashStatsController extends Controller
             ], 422);
         }
 
-        $filters = $request->only(['country_id', 'min_courts']);
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:map_data:{$filter}" : 'squash:map_data';
 
-        // For now, we'll cache the full map without filters
-        // In production, you might want to cache filtered versions too
-        $data = Cache::remember('squash:map_data', 10800, function () {
-            return $this->aggregator->mapPoints();
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->mapPoints($filter);
         });
 
         return response()->json($data);
@@ -137,10 +152,13 @@ class SquashStatsController extends Controller
     /**
      * Get regional breakdown of venues and courts.
      */
-    public function regionalBreakdown(): JsonResponse
+    public function regionalBreakdown(Request $request): JsonResponse
     {
-        $data = Cache::remember('squash:regional_breakdown', 10800, function () {
-            return $this->aggregator->regionalBreakdown();
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:regional_breakdown:{$filter}" : 'squash:regional_breakdown';
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->regionalBreakdown($filter);
         });
 
         return response()->json($data);
@@ -149,10 +167,13 @@ class SquashStatsController extends Controller
     /**
      * Get sub-continental breakdown of venues and courts.
      */
-    public function subContinentalBreakdown(): JsonResponse
+    public function subContinentalBreakdown(Request $request): JsonResponse
     {
-        $data = Cache::remember('squash:subcontinental_breakdown', 10800, function () {
-            return $this->aggregator->subContinentalBreakdown();
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:subcontinental_breakdown:{$filter}" : 'squash:subcontinental_breakdown';
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->subContinentalBreakdown($filter);
         });
 
         return response()->json($data);
@@ -201,22 +222,27 @@ class SquashStatsController extends Controller
      */
     public function venuesByState(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'country_id' => 'required|integer|exists:squash_remote.countries,id',
-        ]);
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:venues_by_state:{$filter}" : 'squash:venues_by_state';
 
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => 'Validation failed',
-                'messages' => $validator->errors(),
-            ], 422);
-        }
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->stateBreakdown($filter);
+        });
 
-        $countryId = $request->input('country_id');
-        $cacheKey = "squash:venues_by_state:{$countryId}";
+        return response()->json($data);
+    }
 
-        $data = Cache::remember($cacheKey, 10800, function () use ($countryId) {
-            return $this->aggregator->venuesByState($countryId);
+    /**
+     * Get top venues by number of courts.
+     */
+    public function topVenuesByCourts(Request $request): JsonResponse
+    {
+        $filter = $request->input('filter');
+        $limit = $request->input('limit', 20);
+        $cacheKey = $filter ? "squash:top_venues_by_courts:{$limit}:{$filter}" : "squash:top_venues_by_courts:{$limit}";
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($limit, $filter) {
+            return $this->aggregator->topVenuesByCourts($limit, $filter);
         });
 
         return response()->json($data);
@@ -225,10 +251,13 @@ class SquashStatsController extends Controller
     /**
      * Get website statistics for venues.
      */
-    public function websiteStats(): JsonResponse
+    public function websiteStats(Request $request): JsonResponse
     {
-        $data = Cache::remember('squash:website_stats', 10800, function () {
-            return $this->aggregator->websiteStats();
+        $filter = $request->input('filter');
+        $cacheKey = $filter ? "squash:website_stats:{$filter}" : 'squash:website_stats';
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter) {
+            return $this->aggregator->websiteStats($filter);
         });
 
         return response()->json($data);

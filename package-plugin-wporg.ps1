@@ -2,19 +2,23 @@
 # This version excludes the GitHub auto-updater for WordPress.org compatibility
 
 $PLUGIN_NAME = "squash-stats-dashboard"
-$VERSION = "1.3.2"
+$VERSION = "1.4.0"
 $OUTPUT_FILE = "$PLUGIN_NAME-wporg.zip"
 
 Write-Host "Packaging $PLUGIN_NAME plugin (v$VERSION) - WORDPRESS.ORG VERSION (no auto-updater)..." -ForegroundColor Green
 
 # Create temporary directory with correct structure
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME" | Out-Null
-# Note: NOT creating includes directory - we're excluding the updater
+New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\includes" | Out-Null
+New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\assets\admin" | Out-Null
 
-# Copy plugin files (excluding updater)
+# Copy plugin files (excluding updater, but including admin assets)
 Copy-Item "squash-stats-dashboard-plugin.php" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "readme.txt" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
+Copy-Item "includes\class-admin-settings.php" -Destination "temp\$PLUGIN_NAME\includes\"
+Copy-Item "assets\admin\admin-styles.css" -Destination "temp\$PLUGIN_NAME\assets\admin\"
+Copy-Item "assets\admin\admin-scripts.js" -Destination "temp\$PLUGIN_NAME\assets\admin\"
 # Explicitly NOT copying includes\class-plugin-updater.php
 
 # Create zip file with correct structure

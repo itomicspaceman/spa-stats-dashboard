@@ -58,6 +58,10 @@ Route::get('/trivia/loneliest-courts', function () {
     return view('trivia.index', ['activeMap' => 'loneliest-courts']);
 })->name('trivia.loneliest-courts');
 
+Route::get('/trivia/court-graveyard', function () {
+    return view('trivia.index', ['activeMap' => 'court-graveyard']);
+})->name('trivia.court-graveyard');
+
 // Dynamic chart rendering
 Route::get('/render', [ChartController::class, 'render'])->name('charts.render');
 

@@ -2522,8 +2522,8 @@ async function initLoneliestCourtsMap() {
         return;
     }
 
-    // Fetch loneliest courts data
-    const data = await fetchData('/loneliest-courts?limit=50');
+    // Fetch loneliest courts data (one venue per country)
+    const data = await fetchData('/loneliest-courts');
     if (!data || data.length === 0) return;
 
     // Update count
@@ -2579,19 +2579,27 @@ async function initLoneliestCourtsMap() {
         });
         
         // Add lines connecting venues to their nearest neighbor
-        const lineFeatures = data.map(item => ({
-            type: 'Feature',
-            geometry: {
-                type: 'LineString',
-                coordinates: [
-                    [item.venue.longitude, item.venue.latitude],
-                    [item.nearest.longitude, item.nearest.latitude]
-                ]
-            },
-            properties: {
-                distance: item.distance_km
-            }
-        }));
+        // Filter out lines that cross the international dateline
+        const lineFeatures = data
+            .filter(item => {
+                // Calculate longitude difference
+                const lngDiff = Math.abs(item.venue.longitude - item.nearest.longitude);
+                // Don't draw lines that cross the dateline (difference > 180°)
+                return lngDiff <= 180;
+            })
+            .map(item => ({
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                        [item.venue.longitude, item.venue.latitude],
+                        [item.nearest.longitude, item.nearest.latitude]
+                    ]
+                },
+                properties: {
+                    distance: item.distance_km
+                }
+            }));
 
         map.addSource('connection-lines', {
             type: 'geojson',
@@ -2710,6 +2718,143 @@ async function initLoneliestCourtsMap() {
 }
 
 /**
+ * Initialize Court Graveyard Table (Trivia)
+ */
+async function initCourtGraveyard() {
+    const tableBody = document.getElementById('graveyard-table-body');
+    const countryFilter = document.getElementById('graveyard-country-filter');
+    const reasonFilter = document.getElementById('graveyard-reason-filter');
+    
+    if (!tableBody || !countryFilter || !reasonFilter) {
+        return;
+    }
+    
+    let allData = [];
+    let deletionReasons = [];
+    let filteredData = [];
+    
+    // Fetch deletion reasons
+    try {
+        deletionReasons = await fetchData('/deletion-reasons');
+        
+        // Populate reason filter
+        reasonFilter.innerHTML = '<option value="">All Reasons</option>';
+        deletionReasons.forEach(reason => {
+            const option = document.createElement('option');
+            option.value = reason.id;
+            option.textContent = reason.name;
+            reasonFilter.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading deletion reasons:', error);
+    }
+    
+    // Fetch graveyard data
+    try {
+        allData = await fetchData('/court-graveyard');
+        filteredData = allData;
+        
+        // Extract unique countries and populate country filter
+        const countries = [...new Set(allData.map(v => v.country_code))].sort();
+        countryFilter.innerHTML = '<option value="">All Countries</option>';
+        countries.forEach(code => {
+            const venue = allData.find(v => v.country_code === code);
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = venue.country;
+            countryFilter.appendChild(option);
+        });
+        
+        // Render initial table
+        renderGraveyardTable(filteredData);
+        updateGraveyardStats(allData, filteredData);
+        
+    } catch (error) {
+        console.error('Error loading graveyard data:', error);
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading data</td></tr>';
+    }
+    
+    // Filter handlers
+    const applyFilters = () => {
+        const selectedCountry = countryFilter.value;
+        const selectedReason = reasonFilter.value;
+        
+        filteredData = allData.filter(venue => {
+            const matchesCountry = !selectedCountry || venue.country_code === selectedCountry;
+            const matchesReason = !selectedReason || venue.delete_reason_id == selectedReason;
+            return matchesCountry && matchesReason;
+        });
+        
+        renderGraveyardTable(filteredData);
+        updateGraveyardStats(allData, filteredData);
+    };
+    
+    countryFilter.addEventListener('change', applyFilters);
+    reasonFilter.addEventListener('change', applyFilters);
+}
+
+/**
+ * Render graveyard table
+ */
+function renderGraveyardTable(data) {
+    const tableBody = document.getElementById('graveyard-table-body');
+    
+    if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No venues found</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    data.forEach(venue => {
+        const address = [venue.address, venue.suburb, venue.state].filter(Boolean).join(', ');
+        const courts = venue.courts ? venue.courts : '?';
+        const date = new Date(venue.date_deleted).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
+        
+        html += `
+            <tr>
+                <td>
+                    <strong>${venue.name}</strong>
+                    ${venue.reason_details ? `<br><small class="text-muted">${venue.reason_details}</small>` : ''}
+                </td>
+                <td><small>${address || '-'}</small></td>
+                <td>
+                    <span class="badge bg-secondary">${venue.country}</span>
+                </td>
+                <td class="text-center">${courts}</td>
+                <td><small>${venue.delete_reason}</small></td>
+                <td style="white-space: nowrap;"><small>${date}</small></td>
+            </tr>
+        `;
+    });
+    
+    tableBody.innerHTML = html;
+}
+
+/**
+ * Update graveyard statistics
+ */
+function updateGraveyardStats(allData, filteredData) {
+    // Total venues
+    document.getElementById('graveyard-total-venues').textContent = allData.length;
+    
+    // Total countries
+    const uniqueCountries = new Set(allData.map(v => v.country_code));
+    document.getElementById('graveyard-total-countries').textContent = uniqueCountries.size;
+    
+    // Total courts lost (sum of all courts, treating null as 0)
+    const totalCourts = allData.reduce((sum, v) => sum + (v.courts || 0), 0);
+    document.getElementById('graveyard-total-courts').textContent = totalCourts;
+    
+    // Filtered count
+    document.getElementById('graveyard-filtered-count').textContent = filteredData.length;
+    document.getElementById('graveyard-showing-count').textContent = filteredData.length;
+}
+
+/**
  * Initialize dashboard - only load components that exist on the page
  */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2817,6 +2962,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (document.getElementById('loneliest-courts-map')) {
         initFunctions.push(initLoneliestCourtsMap());
+    }
+    
+    if (document.getElementById('graveyard-table-body')) {
+        initFunctions.push(initCourtGraveyard());
     }
     
     // Load only the components that exist on the page

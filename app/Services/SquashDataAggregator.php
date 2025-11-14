@@ -64,12 +64,113 @@ class SquashDataAggregator
                 break;
 
             case 'state':
-                // Filter by state ID
-                $query->where('venues.state_id', $code);
+                // Convert state abbreviation to full name if needed
+                $stateName = $this->normalizeStateName($code);
+                // Filter by state name in the venues.state text field
+                $query->where('venues.state', $stateName);
                 break;
         }
 
         return $query;
+    }
+
+    /**
+     * Normalize state abbreviation to full name.
+     * Returns the input if it's already a full name or if no mapping exists.
+     *
+     * @param string $code
+     * @return string
+     */
+    protected function normalizeStateName(string $code): string
+    {
+        // Mapping of common state abbreviations to full names
+        $stateMap = [
+            // Australia
+            'NSW' => 'New South Wales',
+            'QLD' => 'Queensland',
+            'VIC' => 'Victoria',
+            'SA' => 'South Australia',
+            'WA' => 'Western Australia',
+            'TAS' => 'Tasmania',
+            'ACT' => 'Australian Capital Territory',
+            'NT' => 'Northern Territory',
+            
+            // United States
+            'AL' => 'Alabama',
+            'AK' => 'Alaska',
+            'AZ' => 'Arizona',
+            'AR' => 'Arkansas',
+            'CA' => 'California',
+            'CO' => 'Colorado',
+            'CT' => 'Connecticut',
+            'DE' => 'Delaware',
+            'FL' => 'Florida',
+            'GA' => 'Georgia',
+            'HI' => 'Hawaii',
+            'ID' => 'Idaho',
+            'IL' => 'Illinois',
+            'IN' => 'Indiana',
+            'IA' => 'Iowa',
+            'KS' => 'Kansas',
+            'KY' => 'Kentucky',
+            'LA' => 'Louisiana',
+            'ME' => 'Maine',
+            'MD' => 'Maryland',
+            'MA' => 'Massachusetts',
+            'MI' => 'Michigan',
+            'MN' => 'Minnesota',
+            'MS' => 'Mississippi',
+            'MO' => 'Missouri',
+            'MT' => 'Montana',
+            'NE' => 'Nebraska',
+            'NV' => 'Nevada',
+            'NH' => 'New Hampshire',
+            'NJ' => 'New Jersey',
+            'NM' => 'New Mexico',
+            'NY' => 'New York',
+            'NC' => 'North Carolina',
+            'ND' => 'North Dakota',
+            'OH' => 'Ohio',
+            'OK' => 'Oklahoma',
+            'OR' => 'Oregon',
+            'PA' => 'Pennsylvania',
+            'RI' => 'Rhode Island',
+            'SC' => 'South Carolina',
+            'SD' => 'South Dakota',
+            'TN' => 'Tennessee',
+            'TX' => 'Texas',
+            'UT' => 'Utah',
+            'VT' => 'Vermont',
+            'VA' => 'Virginia',
+            'WA' => 'Washington',
+            'WV' => 'West Virginia',
+            'WI' => 'Wisconsin',
+            'WY' => 'Wyoming',
+            'DC' => 'District of Columbia',
+            
+            // Canada
+            'AB' => 'Alberta',
+            'BC' => 'British Columbia',
+            'MB' => 'Manitoba',
+            'NB' => 'New Brunswick',
+            'NL' => 'Newfoundland and Labrador',
+            'NS' => 'Nova Scotia',
+            'ON' => 'Ontario',
+            'PE' => 'Prince Edward Island',
+            'QC' => 'Quebec',
+            'SK' => 'Saskatchewan',
+            'YT' => 'Yukon',
+            'NU' => 'Nunavut',
+            
+            // United Kingdom
+            'ENG' => 'England',
+            'SCT' => 'Scotland',
+            'WLS' => 'Wales',
+            'NIR' => 'Northern Ireland',
+        ];
+
+        $upperCode = strtoupper($code);
+        return $stateMap[$upperCode] ?? $code;
     }
 
     /**
@@ -1071,34 +1172,89 @@ class SquashDataAggregator
      * @param int $limit
      * @return array
      */
-    public function loneliestCourts(int $limit = 50): array
+    public function loneliestCourts(?string $filter = null, int $limit = 50): array
     {
-        // Get the loneliest venue from each country (venue with max distance to nearest neighbor per country)
-        // This ensures we have representation from all countries, not just the globally most isolated venues
-        $venues = DB::connection('squash_remote')
+        // Parse filter to determine query strategy
+        $filterType = null;
+        $filterCode = null;
+        
+        if ($filter) {
+            $parts = explode(':', $filter, 2);
+            if (count($parts) === 2) {
+                [$filterType, $filterCode] = $parts;
+            }
+        }
+
+        // For country or state filters, get top N loneliest venues within that geographic area
+        if (in_array($filterType, ['country', 'state'])) {
+            return $this->loneliestCourtsInArea($filter, $limit);
+        }
+
+        // For world/continent/region, get the loneliest venue per country (filtered by geography)
+        $query = DB::connection('squash_remote')
             ->table('venues as v1')
             ->join('countries as c1', 'v1.country_id', '=', 'c1.id')
             ->join('venues as v2', 'v1.nearest_venue_id', '=', 'v2.id')
-            ->join('countries as c2', 'v2.country_id', '=', 'c2.id')
-            ->join(
-                DB::connection('squash_remote')->raw('(
-                    SELECT country_id, MAX(nearest_venue_km) as max_distance
-                    FROM venues
-                    WHERE status = "1"
-                    AND nearest_venue_id IS NOT NULL
-                    AND nearest_venue_km IS NOT NULL
-                    AND latitude IS NOT NULL
-                    AND longitude IS NOT NULL
-                    AND latitude != 0
-                    AND longitude != 0
-                    GROUP BY country_id
-                ) as max_per_country'),
-                function ($join) {
-                    $join->on('v1.country_id', '=', DB::raw('max_per_country.country_id'))
-                        ->on('v1.nearest_venue_km', '=', DB::raw('max_per_country.max_distance'));
-                }
-            )
-            ->where('v1.status', '1')
+            ->join('countries as c2', 'v2.country_id', '=', 'c2.id');
+
+        // Add joins for continent/region filtering
+        if ($filterType === 'continent') {
+            $query->join('regions as r1', 'c1.region_id', '=', 'r1.id')
+                  ->join('continents as cont1', 'r1.continent_id', '=', 'cont1.id');
+        } elseif ($filterType === 'region') {
+            $query->join('regions as r1', 'c1.region_id', '=', 'r1.id');
+        }
+
+        // Build subquery for max distance per country (with geographic filter)
+        $subqueryBuilder = DB::connection('squash_remote')
+            ->table('venues')
+            ->join('countries', 'venues.country_id', '=', 'countries.id')
+            ->where('venues.status', '1')
+            ->whereNotNull('venues.nearest_venue_id')
+            ->whereNotNull('venues.nearest_venue_km')
+            ->whereNotNull('venues.latitude')
+            ->whereNotNull('venues.longitude')
+            ->where('venues.latitude', '!=', 0)
+            ->where('venues.longitude', '!=', 0);
+
+        // Apply geographic filter to subquery
+        if ($filterType === 'continent') {
+            $subqueryBuilder->join('regions', 'countries.region_id', '=', 'regions.id')
+                     ->join('continents', 'regions.continent_id', '=', 'continents.id')
+                     ->where('continents.id', $filterCode);
+        } elseif ($filterType === 'region') {
+            $subqueryBuilder->join('regions', 'countries.region_id', '=', 'regions.id')
+                     ->where('regions.id', $filterCode);
+        }
+
+        $subqueryBuilder->select([
+            'country_id',
+            DB::raw('MAX(nearest_venue_km) as max_distance')
+        ])
+        ->groupBy('country_id');
+
+        // Get SQL and bindings separately
+        $subquerySql = $subqueryBuilder->toSql();
+        $subqueryBindings = $subqueryBuilder->getBindings();
+
+        // Join with subquery, merging bindings
+        $query->join(
+            DB::connection('squash_remote')->raw("($subquerySql) as max_per_country"),
+            function ($join) {
+                $join->on('v1.country_id', '=', DB::raw('max_per_country.country_id'))
+                    ->on('v1.nearest_venue_km', '=', DB::raw('max_per_country.max_distance'));
+            }
+        )
+        ->addBinding($subqueryBindings, 'join');
+
+        // Apply geographic filter to main query
+        if ($filterType === 'continent') {
+            $query->where('cont1.id', $filterCode);
+        } elseif ($filterType === 'region') {
+            $query->where('r1.id', $filterCode);
+        }
+
+        $venues = $query->where('v1.status', '1')
             ->where('v2.status', '1')
             ->whereNotNull('v1.nearest_venue_id')
             ->whereNotNull('v1.nearest_venue_km')
@@ -1111,6 +1267,112 @@ class SquashDataAggregator
             ->where('v2.latitude', '!=', 0)
             ->where('v2.longitude', '!=', 0)
             ->select([
+                'v1.id as venue_id',
+                'v1.name as venue_name',
+                'v1.physical_address as venue_address',
+                'v1.suburb as venue_suburb',
+                'v1.state as venue_state',
+                'v1.latitude as venue_lat',
+                'v1.longitude as venue_lng',
+                'v1.no_of_courts as venue_courts',
+                'c1.name as venue_country',
+                'c1.alpha_2_code as venue_country_code',
+                'v2.id as nearest_id',
+                'v2.name as nearest_name',
+                'v2.physical_address as nearest_address',
+                'v2.suburb as nearest_suburb',
+                'v2.state as nearest_state',
+                'v2.latitude as nearest_lat',
+                'v2.longitude as nearest_lng',
+                'v2.no_of_courts as nearest_courts',
+                'c2.name as nearest_country',
+                'c2.alpha_2_code as nearest_country_code',
+                'v1.nearest_venue_km as distance_km',
+            ])
+            ->orderBy('v1.nearest_venue_km', 'desc')
+            ->limit($limit)
+            ->get();
+
+        return $venues->map(function ($venue) {
+            return [
+                'venue' => [
+                    'id' => $venue->venue_id,
+                    'name' => $venue->venue_name,
+                    'address' => $venue->venue_address,
+                    'suburb' => $venue->venue_suburb,
+                    'state' => $venue->venue_state,
+                    'country' => $venue->venue_country,
+                    'country_code' => $venue->venue_country_code,
+                    'latitude' => (float) $venue->venue_lat,
+                    'longitude' => (float) $venue->venue_lng,
+                    'courts' => $venue->venue_courts ?? 'Unknown',
+                ],
+                'nearest' => [
+                    'id' => $venue->nearest_id,
+                    'name' => $venue->nearest_name,
+                    'address' => $venue->nearest_address,
+                    'suburb' => $venue->nearest_suburb,
+                    'state' => $venue->nearest_state,
+                    'country' => $venue->nearest_country,
+                    'country_code' => $venue->nearest_country_code,
+                    'latitude' => (float) $venue->nearest_lat,
+                    'longitude' => (float) $venue->nearest_lng,
+                    'courts' => $venue->nearest_courts ?? 'Unknown',
+                ],
+                'distance_km' => (float) $venue->distance_km,
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get top N loneliest venues within a specific country or state.
+     *
+     * @param string $filter Geographic filter (country:XX or state:XX)
+     * @param int $limit Number of venues to return
+     * @return array
+     */
+    protected function loneliestCourtsInArea(string $filter, int $limit = 20): array
+    {
+        $query = DB::connection('squash_remote')
+            ->table('venues as v1')
+            ->join('countries as c1', 'v1.country_id', '=', 'c1.id')
+            ->join('venues as v2', 'v1.nearest_venue_id', '=', 'v2.id')
+            ->join('countries as c2', 'v2.country_id', '=', 'c2.id')
+            ->where('v1.status', '1')
+            ->where('v2.status', '1')
+            ->whereNotNull('v1.nearest_venue_id')
+            ->whereNotNull('v1.nearest_venue_km')
+            ->whereNotNull('v1.latitude')
+            ->whereNotNull('v1.longitude')
+            ->whereNotNull('v2.latitude')
+            ->whereNotNull('v2.longitude')
+            ->where('v1.latitude', '!=', 0)
+            ->where('v1.longitude', '!=', 0)
+            ->where('v2.latitude', '!=', 0)
+            ->where('v2.longitude', '!=', 0);
+
+        // Apply geographic filter
+        $parts = explode(':', $filter, 2);
+        if (count($parts) === 2) {
+            [$type, $code] = $parts;
+            
+            if ($type === 'country') {
+                if (is_numeric($code)) {
+                    $query->where('c1.id', $code);
+                } elseif (strlen($code) === 2) {
+                    $query->where('c1.alpha_2_code', strtoupper($code));
+                } elseif (strlen($code) === 3) {
+                    $query->where('c1.alpha_3_code', strtoupper($code));
+                }
+            } elseif ($type === 'state') {
+                // Convert state abbreviation to full name if needed
+                $stateName = $this->normalizeStateName($code);
+                // Filter by state name in the venues.state text field
+                $query->where('v1.state', $stateName);
+            }
+        }
+
+        $venues = $query->select([
                 'v1.id as venue_id',
                 'v1.name as venue_name',
                 'v1.physical_address as venue_address',
@@ -1212,15 +1474,15 @@ class SquashDataAggregator
 
         return $venues->map(function ($venue) {
             return [
-                'id' => $venue->id,
+                'id' => (int) $venue->id,
                 'name' => $venue->name,
                 'address' => $venue->physical_address,
                 'suburb' => $venue->suburb,
                 'state' => $venue->state,
                 'country' => $venue->country_name,
                 'country_code' => $venue->country_code,
-                'courts' => $venue->no_of_courts ?? null,
-                'delete_reason_id' => $venue->delete_reason_id,
+                'courts' => $venue->no_of_courts ? (int) $venue->no_of_courts : null,
+                'delete_reason_id' => $venue->delete_reason_id ? (int) $venue->delete_reason_id : null,
                 'delete_reason' => $venue->delete_reason ?? 'Other',
                 'reason_details' => $venue->reason_for_deletion,
                 'date_deleted' => $venue->date_deleted,

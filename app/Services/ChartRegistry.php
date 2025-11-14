@@ -162,6 +162,16 @@ class ChartRegistry
                 'thumbnail' => '/images/charts/countries-without-venues.png',
                 'relevant_levels' => ['world'], // Only at world level
             ],
+            'loneliest-courts' => [
+                'id' => 'loneliest-courts',
+                'name' => 'Loneliest Squash Courts',
+                'description' => 'Interactive map showing the most isolated squash venues and their distance to the nearest neighbor',
+                'component' => 'charts.loneliest-courts',
+                'api_endpoints' => ['/loneliest-courts'],
+                'category' => 'map',
+                'thumbnail' => '/images/charts/loneliest-courts.png',
+                'relevant_levels' => ['world', 'continent', 'region', 'country', 'state'], // Always relevant - adapts based on filter
+            ],
         ];
     }
 

@@ -8,6 +8,9 @@
     {{-- Interactive Map (filtered by country) --}}
     <x-charts.venue-map />
     
+    {{-- Loneliest Courts Map --}}
+    <x-charts.loneliest-courts />
+    
     {{-- Charts Row 1: Top Venues & Court Distribution --}}
     <div class="row g-4 mb-4">
         <x-charts.top-venues />

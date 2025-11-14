@@ -1,5 +1,5 @@
 {{-- Top Venues by Courts Component --}}
-<div class="col-lg-12">
+<div class="col-lg-12 mb-4">
     <div class="card shadow-sm h-100">
         <div class="card-header bg-white">
             <h5 class="mb-0" id="top-venues-by-courts-title">Top 20 squash venues by courts</h5>

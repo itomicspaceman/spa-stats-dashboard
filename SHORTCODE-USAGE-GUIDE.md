@@ -137,6 +137,55 @@ The dashboard is fully responsive - it will automatically adapt to mobile screen
 
 ---
 
+---
+
+## 🎲 Trivia Shortcode
+
+The plugin now includes a **Squash Trivia** shortcode that embeds fun facts and statistics about squash worldwide using an iframe for complete isolation.
+
+### Basic Usage
+
+Display the entire trivia page:
+
+```
+[squash_trivia]
+```
+
+### Display Specific Sections
+
+You can display individual trivia sections:
+
+```
+[squash_trivia section="high-altitude"]
+[squash_trivia section="extreme-latitude"]
+[squash_trivia section="hotels-resorts"]
+[squash_trivia section="graveyard"]
+```
+
+**Available sections:**
+- `countries-without-venues` - Countries without squash venues
+- `high-altitude` - High altitude venues (2000m+)
+- `extreme-latitude` - Most northerly and southerly venues
+- `hotels-resorts` - Hotels and resorts with squash courts
+- `population-area` - Venues and courts by population and land area
+- `unknown-courts` - Venues with unknown number of courts
+- `country-club` - The 100% Country Club
+- `word-cloud` - Countries by number of venues (word cloud)
+- `loneliest` - Loneliest squash courts
+- `graveyard` - Squash court graveyard (closed/deleted venues)
+
+### Features
+
+- **Interactive Maps**: Leaflet-based maps with clickable markers
+- **Sortable Tables**: Click column headers to sort data
+- **Filters**: Filter by continent, country, or other criteria
+- **Word Cloud**: Visual representation of countries by venue count
+- **Responsive Design**: Works perfectly on mobile and desktop
+- **Complete Isolation**: iframe-based embedding prevents CSS/JS conflicts
+- **Dynamic Height**: Uses postMessage API for automatic height adjustment
+
+---
+
 ## 📞 Need Help?
 
 Contact: ross@itomic.com.au

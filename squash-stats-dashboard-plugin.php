@@ -3,7 +3,7 @@
  * Plugin Name: Squash Stats Dashboard
  * Plugin URI: https://stats.squashplayers.app
  * Description: Embeds the Squash Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_stats_dashboard]
- * Version: 1.4.0
+ * Version: 1.5.0
  * Author: Itomic Apps
  * Author URI: https://www.itomic.com.au
  * License: GPL v2 or later
@@ -30,10 +30,12 @@ if (is_admin() && file_exists(plugin_dir_path(__FILE__) . 'includes/class-admin-
 class Squash_Stats_Dashboard {
     
     private $dashboard_url = 'https://stats.squashplayers.app';
+    private $api_url = 'https://stats.squashplayers.app/squash';
     
     public function __construct() {
-        // Register shortcode
+        // Register shortcodes
         add_shortcode('squash_stats_dashboard', array($this, 'render_dashboard_shortcode'));
+        add_shortcode('squash_trivia', array($this, 'render_trivia_shortcode'));
         
         // Add CSS for full-width iframe
         add_action('wp_head', array($this, 'add_dashboard_styles'));
@@ -46,8 +48,8 @@ class Squash_Stats_Dashboard {
     public function add_dashboard_styles() {
         global $post;
         
-        // Only add styles if the shortcode is present
-        if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'squash_stats_dashboard')) {
+        // Only add styles if either shortcode is present
+        if (is_a($post, 'WP_Post') && (has_shortcode($post->post_content, 'squash_stats_dashboard') || has_shortcode($post->post_content, 'squash_trivia'))) {
             ?>
             <style>
                 /* Full-width dashboard container */
@@ -114,9 +116,15 @@ class Squash_Stats_Dashboard {
             $query_params['title'] = $atts['title'];
         }
         
+        // Add embed parameter to hide navigation/header
+        $query_params['embed'] = '1';
+        
         // Build query string
         if (!empty($query_params)) {
             $url .= '?' . http_build_query($query_params);
+        } else {
+            // If no query params, just add embed parameter
+            $url .= '?embed=1';
         }
         // If neither is specified, default to the world dashboard (root URL)
         
@@ -170,6 +178,115 @@ class Squash_Stats_Dashboard {
                     if (iframe.style.height === "" || iframe.style.height === "500px") {
                         iframe.style.height = "3000px";
                         console.log("Dashboard height fallback applied");
+                    }
+                }, 5000);
+            })();
+            </script>',
+            esc_js($iframe_id)
+        );
+        
+        // Close wrapper div
+        $html .= '</div>';
+        
+        return $html;
+    }
+    
+    
+    /**
+     * Render the trivia shortcode using iframe
+     * 
+     * This approach provides complete isolation between the trivia page and WordPress:
+     * - No JavaScript conflicts
+     * - No CSS conflicts
+     * - No global variable pollution
+     * - Uses postMessage API for dynamic height adjustment (no scrollbars)
+     * 
+     * Attributes:
+     * - section: Specific section to display (default: all)
+     *   Options: all, countries-without-venues, high-altitude, extreme-latitude, 
+     *            hotels-resorts, population-area, unknown-courts, country-club, 
+     *            word-cloud, loneliest, graveyard
+     * - filter: Geographic filter (e.g., 'continent:3')
+     * - class: Custom CSS classes
+     */
+    public function render_trivia_shortcode($atts) {
+        // Parse shortcode attributes
+        $atts = shortcode_atts(array(
+            'section' => '',     // Specific section (e.g., 'high-altitude', 'graveyard')
+            'filter' => '',      // Geographic filter (e.g., 'continent:3')
+            'class' => '',       // Allow custom CSS classes
+        ), $atts);
+        
+        // Build the iframe URL
+        $url = $this->dashboard_url . '/trivia';
+        $query_params = array();
+        
+        // Add section parameter if specified
+        if (!empty($atts['section'])) {
+            $query_params['section'] = $atts['section'];
+        }
+        
+        // Add filter parameter if specified
+        if (!empty($atts['filter'])) {
+            $query_params['filter'] = $atts['filter'];
+        }
+        
+        // Add embed parameter to hide navigation/header
+        $query_params['embed'] = '1';
+        
+        // Build query string
+        $url .= '?' . http_build_query($query_params);
+        
+        // Generate unique ID for this iframe instance
+        $iframe_id = 'squash-trivia-' . uniqid();
+        
+        // Wrap iframe in full-width container
+        $html = '<div class="squash-dashboard-wrapper">';
+        
+        // Build iframe HTML
+        $html .= sprintf(
+            '<iframe 
+                id="%s"
+                src="%s" 
+                width="100%%" 
+                style="border: none; display: block; overflow: hidden; min-height: 500px;"
+                frameborder="0"
+                scrolling="no"
+                class="squash-dashboard-iframe %s"
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+                title="Squash Trivia">
+            </iframe>',
+            esc_attr($iframe_id),
+            esc_url($url),
+            esc_attr($atts['class'])
+        );
+        
+        // Add postMessage listener for dynamic height adjustment
+        $html .= sprintf(
+            '<script>
+            (function() {
+                var iframe = document.getElementById("%s");
+                
+                // Listen for height messages from the iframe
+                window.addEventListener("message", function(event) {
+                    // Security: verify origin
+                    if (event.origin !== "https://stats.squashplayers.app") {
+                        return;
+                    }
+                    
+                    // Check if this is a height update message
+                    if (event.data && event.data.type === "squash-dashboard-height") {
+                        iframe.style.height = event.data.height + "px";
+                        console.log("Trivia height updated:", event.data.height);
+                    }
+                });
+                
+                // Fallback: if no height message received after 5 seconds, set a default height
+                setTimeout(function() {
+                    if (iframe.style.height === "" || iframe.style.height === "500px") {
+                        iframe.style.height = "3000px";
+                        console.log("Trivia height fallback applied");
                     }
                 }, 5000);
             })();

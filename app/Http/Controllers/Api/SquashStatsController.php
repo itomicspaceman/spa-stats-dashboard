@@ -380,12 +380,30 @@ class SquashStatsController extends Controller
      */
     public function loneliestCourts(Request $request): JsonResponse
     {
-        // No limit needed - we want one venue per country (all countries)
-        $cacheKey = "squash:loneliest_courts:all";
+        $filter = $request->input('filter');
+        
+        // Determine limit based on filter type
+        $limit = 250; // Default for world/continent/region (one per country)
+        
+        if ($filter) {
+            $parts = explode(':', $filter, 2);
+            if (count($parts) === 2) {
+                [$type, $code] = $parts;
+                // For country view, show top 20; for state view, show top 10
+                if ($type === 'country') {
+                    $limit = 20;
+                } elseif ($type === 'state') {
+                    $limit = 10;
+                }
+            }
+        }
 
-        $data = Cache::remember($cacheKey, 10800, function () {
-            // Use a high limit to get all countries (there are ~200 countries max)
-            return $this->aggregator->loneliestCourts(250);
+        $cacheKey = $filter 
+            ? "squash:loneliest_courts:{$filter}:{$limit}" 
+            : "squash:loneliest_courts:world:{$limit}";
+
+        $data = Cache::remember($cacheKey, 10800, function () use ($filter, $limit) {
+            return $this->aggregator->loneliestCourts($filter, $limit);
         });
 
         return response()->json($data);

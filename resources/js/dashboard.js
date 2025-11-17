@@ -2522,9 +2522,35 @@ async function initLoneliestCourtsMap() {
         return;
     }
 
-    // Fetch loneliest courts data (one venue per country)
-    const data = await fetchData('/loneliest-courts');
+    // Get current filter context
+    const { filter } = getFilterParams();
+    
+    // Fetch loneliest courts data (context-aware)
+    const data = await fetchData('/loneliest-courts', filter);
     if (!data || data.length === 0) return;
+
+    // Update title and description based on filter context
+    const titleElement = document.getElementById('loneliest-courts-title');
+    const descElement = document.getElementById('loneliest-courts-description');
+    
+    if (filter) {
+        const parts = filter.split(':');
+        const filterType = parts[0];
+        
+        if (filterType === 'country') {
+            if (titleElement) titleElement.textContent = `Top ${data.length} Loneliest Squash Courts`;
+            if (descElement) descElement.textContent = 'These are the squash venues in this country that are furthest from their nearest neighbor.';
+        } else if (filterType === 'state') {
+            if (titleElement) titleElement.textContent = `Top ${data.length} Loneliest Squash Courts`;
+            if (descElement) descElement.textContent = 'These are the squash venues in this state/county that are furthest from their nearest neighbor.';
+        } else if (filterType === 'continent') {
+            if (titleElement) titleElement.textContent = 'Loneliest Squash Courts per Country';
+            if (descElement) descElement.textContent = 'The loneliest squash venue in each country within this continent.';
+        } else if (filterType === 'region') {
+            if (titleElement) titleElement.textContent = 'Loneliest Squash Courts per Country';
+            if (descElement) descElement.textContent = 'The loneliest squash venue in each country within this region.';
+        }
+    }
 
     // Update count
     const countElement = document.getElementById('loneliest-venues-count');

@@ -31,3 +31,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Test scripts (temporary debugging files)
+test-*.php

@@ -19,7 +19,28 @@ Route::get('/venue-types', function () {
 })->name('dashboard.venue-types');
 
 Route::get('/trivia', function () {
-    return view('trivia.index');
+    // Check for section query parameter to support WordPress shortcode
+    $section = request()->query('section');
+    
+    // Map shortcode section names to activeMap values
+    $sectionMap = [
+        'countries-without-venues' => 'countries-without-venues',
+        'high-altitude' => 'highest-venues',
+        'extreme-latitude' => 'extreme-latitude',
+        'hotels-resorts' => 'hotels-resorts',
+        'population-area' => 'countries-stats',
+        'unknown-courts' => 'unknown-courts',
+        'country-club' => 'country-club-100',
+        'word-cloud' => 'countries-wordcloud',
+        'loneliest' => 'loneliest-courts',
+        'graveyard' => 'court-graveyard',
+    ];
+    
+    $activeMap = isset($section) && isset($sectionMap[$section]) 
+        ? $sectionMap[$section] 
+        : null;
+    
+    return view('trivia.index', ['activeMap' => $activeMap]);
 })->name('trivia.index');
 
 Route::get('/trivia/countries-without-venues', function () {

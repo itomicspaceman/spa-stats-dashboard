@@ -21,7 +21,7 @@ The Squash Court Stats plugin allows you to embed comprehensive squash venue and
 * **Individual Charts:** Select specific charts to create custom dashboards
 * **Visual Admin Interface:** Browse and select charts with thumbnails in WordPress admin
 * **Chart Gallery:** Public gallery to preview all available charts before installing
-* **Shortcode Based:** Use `[squash_court_stats]` and `[squash_trivia]` anywhere
+* **Shortcode Based:** Use `[squash_court_stats]` with `dashboard`, `report`, or `charts` parameters
 * **Auto-Updates:** Automatic update notifications from GitHub releases
 * **Complete Isolation:** iframe-based embedding prevents CSS/JS conflicts
 * **Multiple Instances:** Use on multiple pages with different chart combinations
@@ -89,11 +89,11 @@ Go to Settings → Squash Stats in WordPress admin to browse and select charts. 
 * `[squash_court_stats charts="summary-stats,top-venues"]` - Multiple charts
 * `[squash_court_stats charts="venue-map,continental-breakdown,timeline"]` - Custom combination
 
-**Trivia Page:**
-* `[squash_trivia]` - Full trivia page with all sections
-* `[squash_trivia section="high-altitude"]` - Just high altitude venues
-* `[squash_trivia section="graveyard"]` - Just the squash court graveyard
-* `[squash_trivia section="word-cloud"]` - Just the countries word cloud
+**Reports (Trivia Sections):**
+* `[squash_court_stats report="graveyard"]` - Squash court graveyard
+* `[squash_court_stats report="high-altitude"]` - High altitude venues
+* `[squash_court_stats report="loneliest"]` - Loneliest courts
+* `[squash_court_stats report="word-cloud"]` - Countries word cloud
 
 = What dashboards are available? =
 

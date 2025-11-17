@@ -105,7 +105,7 @@ WordPress Cron (12 hours)
     ↓
 Plugin Updater: check_for_update()
     ↓
-GitHub API: /repos/itomic/spa-stats-dashboard/releases/latest
+GitHub API: /repos/itomic/squash-court-stats/releases/latest
     ↓
 Compare Versions
     ↓
@@ -132,7 +132,7 @@ Update Complete
 
 ### Endpoint Used
 ```
-https://api.github.com/repos/itomic/spa-stats-dashboard/releases/latest
+https://api.github.com/repos/itomic/squash-court-stats/releases/latest
 ```
 
 ### Response Parsed
@@ -159,7 +159,7 @@ git push origin v1.5.0
 
 ### Step 2: Create GitHub Release
 
-1. Go to: https://github.com/itomic/spa-stats-dashboard/releases/new
+1. Go to: https://github.com/itomic/squash-court-stats/releases/new
 2. Select tag: `v1.5.0`
 3. Title: `v1.5.0 - Trivia Page & Auto-Updates`
 4. Copy description from `RELEASE-v1.5.0.md`
@@ -240,7 +240,7 @@ Follow instructions in `RELEASE-v1.5.0.md`:
 1. Install plugin on test site
 2. Wait 12 hours or clear cache:
    ```php
-   delete_transient('squash_dashboard_update_' . md5('itomic/spa-stats-dashboard'));
+   delete_transient('squash_dashboard_update_' . md5('itomic/squash-court-stats'));
    ```
 3. Go to Plugins page
 4. Verify update notification appears
@@ -268,7 +268,7 @@ Once tested:
 
 **Clear Cache:**
 ```php
-delete_transient('squash_dashboard_update_' . md5('itomic/spa-stats-dashboard'));
+delete_transient('squash_dashboard_update_' . md5('itomic/squash-court-stats'));
 ```
 
 ### Update Fails

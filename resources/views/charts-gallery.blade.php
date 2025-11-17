@@ -152,7 +152,7 @@
                     <li>Browse the available dashboards and charts above</li>
                     <li>Click "Copy" to copy the shortcode for any dashboard or chart</li>
                     <li>Or select multiple charts to create a custom combination</li>
-                    <li>Install the <a href="https://github.com/itomic/spa-stats-dashboard" target="_blank">Squash Stats Dashboard WordPress plugin</a></li>
+                    <li>Install the <a href="https://github.com/itomic/squash-court-stats" target="_blank">Squash Court Stats WordPress plugin</a></li>
                     <li>Paste the shortcode into any WordPress page or post</li>
                 </ol>
             </div>

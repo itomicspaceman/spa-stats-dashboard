@@ -1,12 +1,12 @@
 # Create GitHub Release v1.2.0 - Step by Step
 
 ## Quick Link
-**Click here to create the release:** https://github.com/itomic/spa-stats-dashboard/releases/new?tag=v1.2.0&title=v1.2.0%20-%20Auto-Update%20Support
+**Click here to create the release:** https://github.com/itomic/squash-court-stats/releases/new?tag=v1.2.0&title=v1.2.0%20-%20Auto-Update%20Support
 
 ## Manual Steps
 
 1. **Go to the releases page:**
-   https://github.com/itomic/spa-stats-dashboard/releases/new
+   https://github.com/itomic/squash-court-stats/releases/new
 
 2. **Fill in the form:**
    - **Tag:** `v1.2.0` (should already be selected since we pushed the tag)
@@ -47,7 +47,7 @@
 
 ---
 
-**Full Changelog**: https://github.com/itomic/spa-stats-dashboard/compare/v1.1.0...v1.2.0
+**Full Changelog**: https://github.com/itomic/squash-court-stats/compare/v1.1.0...v1.2.0
 ```
 
 4. **Upload the plugin ZIP:**

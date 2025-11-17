@@ -3,8 +3,8 @@
 # Package WordPress Plugin for Deployment
 # This script creates a zip file ready for WordPress installation
 
-PLUGIN_NAME="squash-stats-dashboard"
-VERSION="1.2.0"
+PLUGIN_NAME="squash-court-stats"
+VERSION="1.5.0"
 OUTPUT_FILE="${PLUGIN_NAME}.zip"  # Remove version from filename
 
 echo "Packaging ${PLUGIN_NAME} plugin (v${VERSION})..."
@@ -13,7 +13,7 @@ echo "Packaging ${PLUGIN_NAME} plugin (v${VERSION})..."
 mkdir -p temp/${PLUGIN_NAME}/includes
 
 # Copy plugin files
-cp squash-stats-dashboard-plugin.php temp/${PLUGIN_NAME}/
+cp squash-court-stats.php temp/${PLUGIN_NAME}/
 cp readme.txt temp/${PLUGIN_NAME}/
 cp PLUGIN-README.md temp/${PLUGIN_NAME}/README.md
 cp includes/class-plugin-updater.php temp/${PLUGIN_NAME}/includes/

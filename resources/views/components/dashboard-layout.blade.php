@@ -1,4 +1,4 @@
-@props(['title' => 'Squash Stats Dashboard', 'hero' => null, 'showFooter' => true, 'showSearch' => true])
+@props(['title' => 'Squash Court Stats', 'hero' => null, 'showFooter' => true, 'showSearch' => true])
 
 <!DOCTYPE html>
 <html lang="en">

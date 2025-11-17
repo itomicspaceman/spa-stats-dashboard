@@ -1,7 +1,7 @@
 # Package WordPress Plugin for Deployment
 # This script creates a zip file ready for WordPress installation
 
-$PLUGIN_NAME = "squash-stats-dashboard"
+$PLUGIN_NAME = "squash-court-stats"
 $VERSION = "1.5.0"
 $OUTPUT_FILE = "$PLUGIN_NAME.zip"  # Remove version from filename
 
@@ -12,7 +12,7 @@ New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME" | Out-Null
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\includes" | Out-Null
 
 # Copy plugin files
-Copy-Item "squash-stats-dashboard-plugin.php" -Destination "temp\$PLUGIN_NAME\"
+Copy-Item "squash-court-stats.php" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "readme.txt" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
 Copy-Item "includes\class-plugin-updater.php" -Destination "temp\$PLUGIN_NAME\includes\"

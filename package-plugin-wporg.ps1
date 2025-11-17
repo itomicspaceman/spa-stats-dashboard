@@ -1,7 +1,7 @@
 # Package WordPress Plugin for WordPress.org Submission (without auto-updater)
 # This version excludes the GitHub auto-updater for WordPress.org compatibility
 
-$PLUGIN_NAME = "squash-stats-dashboard"
+$PLUGIN_NAME = "squash-court-stats"
 $VERSION = "1.4.0"
 $OUTPUT_FILE = "$PLUGIN_NAME-wporg.zip"
 
@@ -13,7 +13,7 @@ New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\includes" | Out-Nul
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\assets\admin" | Out-Null
 
 # Copy plugin files (excluding updater, but including admin assets)
-Copy-Item "squash-stats-dashboard-plugin.php" -Destination "temp\$PLUGIN_NAME\"
+Copy-Item "squash-court-stats.php" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "readme.txt" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
 Copy-Item "includes\class-admin-settings.php" -Destination "temp\$PLUGIN_NAME\includes\"

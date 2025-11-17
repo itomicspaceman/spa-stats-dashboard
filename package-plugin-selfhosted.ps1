@@ -1,7 +1,7 @@
 # Package WordPress Plugin for Self-Hosted Deployment (with auto-updater)
 # This version includes the GitHub auto-updater for self-hosted installations
 
-$PLUGIN_NAME = "squash-stats-dashboard"
+$PLUGIN_NAME = "squash-court-stats"
 $VERSION = "1.4.0"
 $OUTPUT_FILE = "$PLUGIN_NAME-selfhosted.zip"
 
@@ -13,7 +13,7 @@ New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\includes" | Out-Nul
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\assets\admin" | Out-Null
 
 # Copy plugin files (including updater and admin assets)
-Copy-Item "squash-stats-dashboard-plugin.php" -Destination "temp\$PLUGIN_NAME\"
+Copy-Item "squash-court-stats.php" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "readme.txt" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
 Copy-Item "includes\class-plugin-updater.php" -Destination "temp\$PLUGIN_NAME\includes\"

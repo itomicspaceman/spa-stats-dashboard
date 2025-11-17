@@ -34,7 +34,7 @@
 
 ## Manual Release Creation Steps
 
-1. Go to https://github.com/itomic/spa-stats-dashboard/releases/new
+1. Go to https://github.com/itomic/squash-court-stats/releases/new
 2. Tag version: `v1.2.0`
 3. Release title: `v1.2.0 - Auto-Update Support`
 4. Copy the description above into the release notes
@@ -43,5 +43,5 @@
 
 ---
 
-**Full Changelog**: https://github.com/itomic/spa-stats-dashboard/commits/main
+**Full Changelog**: https://github.com/itomic/squash-court-stats/commits/main
 

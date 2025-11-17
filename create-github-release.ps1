@@ -38,7 +38,7 @@ $body = @"
 
 ---
 
-**Full Changelog**: https://github.com/itomicspaceman/spa-stats-dashboard/compare/v1.1.0...v1.2.0
+**Full Changelog**: https://github.com/itomic/squash-court-stats/compare/v1.1.0...v1.2.0
 "@
 
 Write-Host "Creating GitHub release $tag..." -ForegroundColor Green

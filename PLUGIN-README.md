@@ -17,7 +17,7 @@ This WordPress plugin embeds the Squash Stats Dashboard from `stats.squashplayer
 
 ### Method 1: Upload ZIP File (Recommended)
 
-1. **Download:** Get `squash-stats-dashboard.zip`
+1. **Download:** Get `squash-court-stats.zip`
 2. **Upload:** WordPress Admin → Plugins → Add New → Upload Plugin
 3. **Install:** Click "Install Now"
 4. **Activate:** Click "Activate Plugin"
@@ -26,11 +26,11 @@ This WordPress plugin embeds the Squash Stats Dashboard from `stats.squashplayer
 
 1. **Create Plugin Directory:**
    ```bash
-   mkdir -p wp-content/plugins/squash-stats-dashboard
+   mkdir -p wp-content/plugins/squash-court-stats
    ```
 
 2. **Upload Files:**
-   - Copy `squash-stats-dashboard-plugin.php` to `wp-content/plugins/squash-stats-dashboard/`
+   - Copy `squash-court-stats-plugin.php` to `wp-content/plugins/squash-court-stats/`
 
 3. **Activate Plugin:**
    - Go to WordPress Admin → Plugins
@@ -154,8 +154,8 @@ The plugin loads these external assets:
 ### File Structure
 
 ```
-squash-stats-dashboard/
-├── squash-stats-dashboard-plugin.php  (Main plugin file)
+squash-court-stats/
+├── squash-court-stats-plugin.php  (Main plugin file)
 └── README.md                          (This file)
 ```
 

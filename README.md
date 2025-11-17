@@ -1,4 +1,4 @@
-# Squash Stats Dashboard
+# Squash Court Stats
 
 A comprehensive Laravel 12 dashboard displaying global squash venue and court statistics with interactive maps and data visualizations.
 
@@ -39,8 +39,8 @@ A comprehensive Laravel 12 dashboard displaying global squash venue and court st
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/squash-stats-dashboard.git
-cd squash-stats-dashboard
+git clone https://github.com/itomic/squash-court-stats.git
+cd squash-court-stats
 ```
 
 2. Install PHP dependencies:

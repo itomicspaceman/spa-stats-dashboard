@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Squash Stats Dashboard
+ * Plugin Name: Squash Court Stats
  * Plugin URI: https://stats.squashplayers.app
- * Description: Embeds the Squash Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_stats_dashboard]
+ * Description: Embeds the Squash Court Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_stats_dashboard]
  * Version: 1.5.0
  * Author: Itomic Apps
  * Author URI: https://www.itomic.com.au
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Update URI: https://github.com/itomic/spa-stats-dashboard
+ * Update URI: https://github.com/itomic/squash-court-stats
  */
 
 // Exit if accessed directly
@@ -309,6 +309,6 @@ new Squash_Stats_Dashboard();
 if (is_admin() && class_exists('Squash_Stats_Dashboard_Updater')) {
     new Squash_Stats_Dashboard_Updater(
         plugin_basename(__FILE__),
-        'itomicspaceman/spa-stats-dashboard'
+        'itomic/squash-court-stats'
     );
 }

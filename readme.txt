@@ -1,4 +1,4 @@
-=== Squash Stats Dashboard ===
+=== Squash Court Stats ===
 Contributors: itomicapps
 Tags: squash, statistics, dashboard, sports, analytics
 Requires at least: 5.0
@@ -8,11 +8,11 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Embeds the Squash Stats Dashboard from stats.squashplayers.app into your WordPress site using a simple shortcode.
+Embeds the Squash Court Stats Dashboard from stats.squashplayers.app into your WordPress site using a simple shortcode.
 
 == Description ==
 
-The Squash Stats Dashboard plugin allows you to embed comprehensive squash venue and court statistics directly into your WordPress pages and posts using a simple shortcode.
+The Squash Court Stats plugin allows you to embed comprehensive squash venue and court statistics directly into your WordPress pages and posts using a simple shortcode.
 
 **Features:**
 
@@ -40,7 +40,7 @@ The Squash Stats Dashboard plugin allows you to embed comprehensive squash venue
 
 This plugin pulls data from a Laravel application hosted at stats.squashplayers.app. The full source code for both the plugin and the Laravel dashboard is available on GitHub:
 
-* Plugin & Dashboard Source: [https://github.com/itomic/spa-stats-dashboard](https://github.com/itomic/spa-stats-dashboard)
+* Plugin & Dashboard Source: [https://github.com/itomic/squash-court-stats](https://github.com/itomic/squash-court-stats)
 
 The dashboard is built using Laravel 12 and Vite for asset compilation. See the GitHub repository for build instructions.
 
@@ -122,7 +122,7 @@ The data is pulled from stats.squashplayers.app, which aggregates squash venue a
 
 = Is the source code available? =
 
-Yes! The full source code is available on GitHub at https://github.com/itomic/spa-stats-dashboard
+Yes! The full source code is available on GitHub at https://github.com/itomic/squash-court-stats
 
 = Does this work with page builders? =
 

@@ -10,19 +10,12 @@ Write-Host "Packaging $PLUGIN_NAME plugin (v$VERSION)..." -ForegroundColor Green
 # Create temporary directory with correct structure
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME" | Out-Null
 New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\includes" | Out-Null
-New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\assets" | Out-Null
-New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\assets\css" | Out-Null
-New-Item -ItemType Directory -Force -Path "temp\$PLUGIN_NAME\assets\js" | Out-Null
 
 # Copy plugin files
 Copy-Item "squash-stats-dashboard-plugin.php" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "readme.txt" -Destination "temp\$PLUGIN_NAME\"
 Copy-Item "PLUGIN-README.md" -Destination "temp\$PLUGIN_NAME\README.md"
 Copy-Item "includes\class-plugin-updater.php" -Destination "temp\$PLUGIN_NAME\includes\"
-
-# Copy assets
-Copy-Item "assets\css\trivia.css" -Destination "temp\$PLUGIN_NAME\assets\css\"
-Copy-Item "assets\js\trivia.js" -Destination "temp\$PLUGIN_NAME\assets\js\"
 
 # Create zip file with correct structure
 # We need: squash-stats-dashboard/ at root of ZIP with files inside

@@ -141,7 +141,7 @@ The dashboard is fully responsive - it will automatically adapt to mobile screen
 
 ## 🎲 Trivia Shortcode
 
-The plugin now includes a **native trivia page** shortcode that displays fun facts and statistics about squash worldwide.
+The plugin now includes a **Squash Trivia** shortcode that embeds fun facts and statistics about squash worldwide using an iframe for complete isolation.
 
 ### Basic Usage
 
@@ -179,10 +179,10 @@ You can display individual trivia sections:
 - **Interactive Maps**: Leaflet-based maps with clickable markers
 - **Sortable Tables**: Click column headers to sort data
 - **Filters**: Filter by continent, country, or other criteria
-- **Responsive Design**: Works perfectly on mobile devices
-- **Native Integration**: Fetches data directly from your API (no iframe)
-
-For complete documentation, see [TRIVIA-SHORTCODE-GUIDE.md](TRIVIA-SHORTCODE-GUIDE.md)
+- **Word Cloud**: Visual representation of countries by venue count
+- **Responsive Design**: Works perfectly on mobile and desktop
+- **Complete Isolation**: iframe-based embedding prevents CSS/JS conflicts
+- **Dynamic Height**: Uses postMessage API for automatic height adjustment
 
 ---
 

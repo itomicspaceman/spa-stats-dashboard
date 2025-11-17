@@ -63,6 +63,12 @@
     </style>
 </head>
 <body>
+    @php
+        // Check if page is embedded (via iframe)
+        $isEmbedded = request()->has('embed') || request()->has('embedded');
+    @endphp
+
+    @unless($isEmbedded)
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -113,6 +119,7 @@
         </div>
     </div>
     @endif
+    @endunless
 
     <!-- Main Content -->
     <div class="container mb-5">

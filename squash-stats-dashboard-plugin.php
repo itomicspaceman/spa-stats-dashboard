@@ -116,9 +116,15 @@ class Squash_Stats_Dashboard {
             $query_params['title'] = $atts['title'];
         }
         
+        // Add embed parameter to hide navigation/header
+        $query_params['embed'] = '1';
+        
         // Build query string
         if (!empty($query_params)) {
             $url .= '?' . http_build_query($query_params);
+        } else {
+            // If no query params, just add embed parameter
+            $url .= '?embed=1';
         }
         // If neither is specified, default to the world dashboard (root URL)
         
@@ -225,10 +231,11 @@ class Squash_Stats_Dashboard {
             $query_params['filter'] = $atts['filter'];
         }
         
+        // Add embed parameter to hide navigation/header
+        $query_params['embed'] = '1';
+        
         // Build query string
-        if (!empty($query_params)) {
-            $url .= '?' . http_build_query($query_params);
-        }
+        $url .= '?' . http_build_query($query_params);
         
         // Generate unique ID for this iframe instance
         $iframe_id = 'squash-trivia-' . uniqid();

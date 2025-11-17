@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Squash Court Stats
  * Plugin URI: https://stats.squashplayers.app
- * Description: Embeds the Squash Court Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_court_stats]
+ * Description: Embeds dashboards and reports from stats.squashplayers.app into WordPress using shortcode [squash_court_stats]. Use dashboard="name" for dashboards or report="name" for trivia reports.
  * Version: 1.5.0
  * Author: Itomic Apps
  * Author URI: https://www.itomic.com.au
@@ -33,9 +33,8 @@ class Squash_Stats_Dashboard {
     private $api_url = 'https://stats.squashplayers.app/squash';
     
     public function __construct() {
-        // Register shortcodes
+        // Register shortcode
         add_shortcode('squash_court_stats', array($this, 'render_dashboard_shortcode'));
-        add_shortcode('squash_trivia', array($this, 'render_trivia_shortcode'));
         
         // Add CSS for full-width iframe
         add_action('wp_head', array($this, 'add_dashboard_styles'));
@@ -48,8 +47,8 @@ class Squash_Stats_Dashboard {
     public function add_dashboard_styles() {
         global $post;
         
-        // Only add styles if either shortcode is present
-        if (is_a($post, 'WP_Post') && (has_shortcode($post->post_content, 'squash_court_stats') || has_shortcode($post->post_content, 'squash_trivia'))) {
+        // Only add styles if shortcode is present
+        if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'squash_court_stats')) {
             ?>
             <style>
                 /* Full-width dashboard container */
@@ -87,6 +86,7 @@ class Squash_Stats_Dashboard {
         // Parse shortcode attributes
         $atts = shortcode_atts(array(
             'dashboard' => '',  // Dashboard name (e.g., 'world', 'country', 'venue-types')
+            'report' => '',     // Report/trivia section name (e.g., 'graveyard', 'high-altitude')
             'charts' => '',     // Comma-separated chart IDs (e.g., 'venue-map,top-venues')
             'filter' => '',     // Geographic filter (e.g., 'country:AU', 'region:19', 'continent:5')
             'title' => '',      // Custom title override for charts/map
@@ -97,14 +97,22 @@ class Squash_Stats_Dashboard {
         $url = $this->dashboard_url;
         $query_params = array();
         
-        // Add query parameters if dashboard or charts are specified
-        if (!empty($atts['charts'])) {
-            $url .= '/render';
-            $query_params['charts'] = $atts['charts'];
-        } elseif (!empty($atts['dashboard'])) {
+        // Handle report parameter (trivia sections)
+        if (!empty($atts['report'])) {
+            $url .= '/trivia';
+            $query_params['section'] = $atts['report'];
+        }
+        // Handle dashboard parameter
+        elseif (!empty($atts['dashboard'])) {
             $url .= '/render';
             $query_params['dashboard'] = $atts['dashboard'];
         }
+        // Handle charts parameter
+        elseif (!empty($atts['charts'])) {
+            $url .= '/render';
+            $query_params['charts'] = $atts['charts'];
+        }
+        // If none specified, default to the world dashboard (root URL)
         
         // Add filter parameter if specified
         if (!empty($atts['filter'])) {
@@ -126,7 +134,6 @@ class Squash_Stats_Dashboard {
             // If no query params, just add embed parameter
             $url .= '?embed=1';
         }
-        // If neither is specified, default to the world dashboard (root URL)
         
         // Generate unique ID for this iframe instance
         $iframe_id = 'squash-dashboard-' . uniqid();
@@ -146,7 +153,7 @@ class Squash_Stats_Dashboard {
                 class="squash-dashboard-iframe %s"
                 loading="lazy"
                 sandbox="allow-scripts allow-same-origin allow-popups"
-                title="Squash Stats Dashboard">
+                title="Squash Court Stats">
             </iframe>',
             esc_attr($iframe_id),
             esc_url($url),
@@ -192,113 +199,6 @@ class Squash_Stats_Dashboard {
     }
     
     
-    /**
-     * Render the trivia shortcode using iframe
-     * 
-     * This approach provides complete isolation between the trivia page and WordPress:
-     * - No JavaScript conflicts
-     * - No CSS conflicts
-     * - No global variable pollution
-     * - Uses postMessage API for dynamic height adjustment (no scrollbars)
-     * 
-     * Attributes:
-     * - section: Specific section to display (default: all)
-     *   Options: all, countries-without-venues, high-altitude, extreme-latitude, 
-     *            hotels-resorts, population-area, unknown-courts, country-club, 
-     *            word-cloud, loneliest, graveyard
-     * - filter: Geographic filter (e.g., 'continent:3')
-     * - class: Custom CSS classes
-     */
-    public function render_trivia_shortcode($atts) {
-        // Parse shortcode attributes
-        $atts = shortcode_atts(array(
-            'section' => '',     // Specific section (e.g., 'high-altitude', 'graveyard')
-            'filter' => '',      // Geographic filter (e.g., 'continent:3')
-            'class' => '',       // Allow custom CSS classes
-        ), $atts);
-        
-        // Build the iframe URL
-        $url = $this->dashboard_url . '/trivia';
-        $query_params = array();
-        
-        // Add section parameter if specified
-        if (!empty($atts['section'])) {
-            $query_params['section'] = $atts['section'];
-        }
-        
-        // Add filter parameter if specified
-        if (!empty($atts['filter'])) {
-            $query_params['filter'] = $atts['filter'];
-        }
-        
-        // Add embed parameter to hide navigation/header
-        $query_params['embed'] = '1';
-        
-        // Build query string
-        $url .= '?' . http_build_query($query_params);
-        
-        // Generate unique ID for this iframe instance
-        $iframe_id = 'squash-trivia-' . uniqid();
-        
-        // Wrap iframe in full-width container
-        $html = '<div class="squash-dashboard-wrapper">';
-        
-        // Build iframe HTML
-        $html .= sprintf(
-            '<iframe 
-                id="%s"
-                src="%s" 
-                width="100%%" 
-                style="border: none; display: block; overflow: hidden; min-height: 500px;"
-                frameborder="0"
-                scrolling="no"
-                class="squash-dashboard-iframe %s"
-                loading="lazy"
-                sandbox="allow-scripts allow-same-origin allow-popups"
-                title="Squash Trivia">
-            </iframe>',
-            esc_attr($iframe_id),
-            esc_url($url),
-            esc_attr($atts['class'])
-        );
-        
-        // Add postMessage listener for dynamic height adjustment
-        $html .= sprintf(
-            '<script>
-            (function() {
-                var iframe = document.getElementById("%s");
-                
-                // Listen for height messages from the iframe
-                window.addEventListener("message", function(event) {
-                    // Security: verify origin
-                    if (event.origin !== "https://stats.squashplayers.app") {
-                        return;
-                    }
-                    
-                    // Check if this is a height update message
-                    if (event.data && event.data.type === "squash-dashboard-height") {
-                        iframe.style.height = event.data.height + "px";
-                        console.log("Trivia height updated:", event.data.height);
-                    }
-                });
-                
-                // Fallback: if no height message received after 5 seconds, set a default height
-                setTimeout(function() {
-                    if (iframe.style.height === "" || iframe.style.height === "500px") {
-                        iframe.style.height = "3000px";
-                        console.log("Trivia height fallback applied");
-                    }
-                }, 5000);
-            })();
-            </script>',
-            esc_js($iframe_id)
-        );
-        
-        // Close wrapper div
-        $html .= '</div>';
-        
-        return $html;
-    }
 }
 
 // Initialize the plugin
@@ -312,3 +212,4 @@ if (is_admin() && class_exists('Squash_Stats_Dashboard_Updater')) {
         'itomic/squash-court-stats'
     );
 }
+

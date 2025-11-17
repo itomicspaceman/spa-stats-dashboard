@@ -2858,7 +2858,7 @@ function renderGraveyardTable(data) {
             day: 'numeric' 
         });
         
-        // Truncate reason details to 200 characters
+        // Truncate reason details to 180 characters
         let reasonDisplay = '';
         let reasonFull = '';
         let isTruncated = false;
@@ -2868,8 +2868,8 @@ function renderGraveyardTable(data) {
         
         if (reasonText) {
             reasonFull = String(reasonText); // Ensure it's a string
-            if (reasonFull.length > 200) {
-                reasonDisplay = reasonFull.substring(0, 200) + '...';
+            if (reasonFull.length > 180) {
+                reasonDisplay = reasonFull.substring(0, 180) + '...';
                 isTruncated = true;
             } else {
                 reasonDisplay = reasonFull;
@@ -2888,7 +2888,7 @@ function renderGraveyardTable(data) {
                                    data-reason-id="${reasonId}"
                                    data-full-reason="${escapeHtml(reasonFull)}"
                                    data-is-truncated="${isTruncated}"
-                                   title="${isTruncated ? 'Click to expand full reason' : ''}"
+                                   title="${isTruncated ? 'Click to view full reason' : ''}"
                                    style="cursor: ${isTruncated ? 'pointer' : 'default'};">
                             <span class="reason-display">${escapeHtml(reasonDisplay)}</span>
                             ${isTruncated ? '<span class="reason-full d-none">' + escapeHtml(reasonFull) + '</span>' : ''}

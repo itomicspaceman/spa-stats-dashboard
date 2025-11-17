@@ -60,37 +60,9 @@
             width: 3rem;
             height: 3rem;
         }
-        /* Graveyard reason text tooltip */
+        /* Graveyard reason text - click to expand */
         .graveyard-reason-text {
             position: relative;
-        }
-        .graveyard-reason-text[data-is-truncated="true"]:hover::after {
-            content: attr(data-full-reason);
-            position: absolute;
-            left: 0;
-            bottom: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            max-width: 500px;
-            z-index: 1000;
-            font-size: 0.875rem;
-            line-height: 1.4;
-            margin-bottom: 5px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            pointer-events: none;
-        }
-        .graveyard-reason-text[data-is-truncated="true"]:hover::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            bottom: 95%;
-            border: 5px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.9);
-            z-index: 1001;
-            pointer-events: none;
         }
     </style>
 </head>

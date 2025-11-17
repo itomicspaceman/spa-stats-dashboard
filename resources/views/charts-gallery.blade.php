@@ -51,10 +51,10 @@
                                 <span class="badge bg-primary">{{ count($dashboard['charts']) }} charts</span>
                             </p>
                             <div class="mb-3">
-                                <code class="d-block p-2 bg-light rounded shortcode-text">[squash_stats_dashboard dashboard="{{ $dashboard['id'] }}"]</code>
+                                <code class="d-block p-2 bg-light rounded shortcode-text">[squash_court_stats dashboard="{{ $dashboard['id'] }}"]</code>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-primary copy-shortcode" data-shortcode='[squash_stats_dashboard dashboard="{{ $dashboard['id'] }}"]'>
+                                <button class="btn btn-sm btn-primary copy-shortcode" data-shortcode='[squash_court_stats dashboard="{{ $dashboard['id'] }}"]'>
                                     <i class="fas fa-copy"></i> Copy
                                 </button>
                                 <a href="{{ $dashboard['url'] }}" target="_blank" class="btn btn-sm btn-outline-secondary">
@@ -99,10 +99,10 @@
                                 <span class="badge bg-secondary">{{ $chart['category'] }}</span>
                             </p>
                             <div class="mb-3">
-                                <code class="d-block p-2 bg-light rounded small shortcode-text">[squash_stats_dashboard charts="{{ $chart['id'] }}"]</code>
+                                <code class="d-block p-2 bg-light rounded small shortcode-text">[squash_court_stats charts="{{ $chart['id'] }}"]</code>
                             </div>
                             <div class="d-flex gap-2 align-items-center">
-                                <button class="btn btn-sm btn-primary copy-shortcode" data-shortcode='[squash_stats_dashboard charts="{{ $chart['id'] }}"]'>
+                                <button class="btn btn-sm btn-primary copy-shortcode" data-shortcode='[squash_court_stats charts="{{ $chart['id'] }}"]'>
                                     <i class="fas fa-copy"></i> Copy
                                 </button>
                                 <a href="/render?charts={{ $chart['id'] }}" target="_blank" class="btn btn-sm btn-outline-secondary">
@@ -129,7 +129,7 @@
                 <div id="selected-charts" class="mb-3"></div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Your Custom Shortcode:</label>
-                    <code id="custom-shortcode" class="d-block p-3 bg-light rounded">[squash_stats_dashboard charts=""]</code>
+                    <code id="custom-shortcode" class="d-block p-3 bg-light rounded">[squash_court_stats charts=""]</code>
                 </div>
                 <div class="d-flex gap-2">
                     <button id="copy-custom" class="btn btn-primary">
@@ -230,7 +230,7 @@
             
             if (count > 0) {
                 document.getElementById('selection-builder').style.display = '';
-                const shortcode = `[squash_stats_dashboard charts="${selectedCharts.join(',')}"]`;
+                const shortcode = `[squash_court_stats charts="${selectedCharts.join(',')}"]`;
                 document.getElementById('custom-shortcode').textContent = shortcode;
                 
                 // Update selected charts display

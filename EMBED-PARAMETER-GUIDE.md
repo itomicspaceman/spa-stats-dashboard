@@ -81,7 +81,7 @@ Shows: Content only (no navigation/hero)
 The WordPress plugin handles this automatically - no manual configuration needed:
 
 ```php
-[squash_stats_dashboard]           // Automatically adds ?embed=1
+[squash_court_stats]           // Automatically adds ?embed=1
 [squash_trivia]                    // Automatically adds ?embed=1
 [squash_trivia section="graveyard"] // Adds ?section=graveyard&embed=1
 ```

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Squash Court Stats
  * Plugin URI: https://stats.squashplayers.app
- * Description: Embeds the Squash Court Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_stats_dashboard]
+ * Description: Embeds the Squash Court Stats Dashboard from stats.squashplayers.app into WordPress using shortcode [squash_court_stats]
  * Version: 1.5.0
  * Author: Itomic Apps
  * Author URI: https://www.itomic.com.au
@@ -34,7 +34,7 @@ class Squash_Stats_Dashboard {
     
     public function __construct() {
         // Register shortcodes
-        add_shortcode('squash_stats_dashboard', array($this, 'render_dashboard_shortcode'));
+        add_shortcode('squash_court_stats', array($this, 'render_dashboard_shortcode'));
         add_shortcode('squash_trivia', array($this, 'render_trivia_shortcode'));
         
         // Add CSS for full-width iframe
@@ -49,7 +49,7 @@ class Squash_Stats_Dashboard {
         global $post;
         
         // Only add styles if either shortcode is present
-        if (is_a($post, 'WP_Post') && (has_shortcode($post->post_content, 'squash_stats_dashboard') || has_shortcode($post->post_content, 'squash_trivia'))) {
+        if (is_a($post, 'WP_Post') && (has_shortcode($post->post_content, 'squash_court_stats') || has_shortcode($post->post_content, 'squash_trivia'))) {
             ?>
             <style>
                 /* Full-width dashboard container */

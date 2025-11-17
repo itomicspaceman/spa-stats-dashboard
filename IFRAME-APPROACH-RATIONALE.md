@@ -21,7 +21,7 @@ When we initially implemented the trivia page, we tried a **native WordPress int
 We reverted to an **iframe-based approach** for both dashboard and trivia shortcodes:
 
 ```php
-[squash_stats_dashboard]  // Uses iframe
+[squash_court_stats]  // Uses iframe
 [squash_trivia]           // Uses iframe
 ```
 

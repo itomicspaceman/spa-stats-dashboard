@@ -17,7 +17,7 @@ All code changes have been made and committed to the `develop` branch:
 - ✅ Plugin updater class references
 
 ### What Stayed the Same (For Backward Compatibility)
-- ✅ Shortcode names: `[squash_stats_dashboard]` and `[squash_trivia]` (unchanged)
+- ✅ Shortcode names: `[squash_court_stats]` and `[squash_trivia]` (unchanged)
 - ✅ Class names: `Squash_Stats_Dashboard` (unchanged)
 - ✅ Function names (unchanged)
 
@@ -105,7 +105,7 @@ After completing manual steps:
 - [ ] Webhook still works (if configured)
 - [ ] Plugin packages correctly (`.\package-plugin.ps1`)
 - [ ] Plugin installs on WordPress
-- [ ] Shortcodes work: `[squash_stats_dashboard]` and `[squash_trivia]`
+- [ ] Shortcodes work: `[squash_court_stats]` and `[squash_trivia]`
 - [ ] Auto-updates work (if configured)
 
 ## 📝 Notes

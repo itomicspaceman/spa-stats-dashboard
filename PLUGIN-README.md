@@ -52,34 +52,34 @@ This WordPress plugin embeds the Squash Stats Dashboard from `stats.squashplayer
 #### Full Dashboards
 
 ```
-[squash_stats_dashboard]
+[squash_court_stats]
 ```
 Default world dashboard with all charts
 
 ```
-[squash_stats_dashboard dashboard="country"]
+[squash_court_stats dashboard="country"]
 ```
 Country-specific statistics
 
 ```
-[squash_stats_dashboard dashboard="venue-types"]
+[squash_court_stats dashboard="venue-types"]
 ```
 Venue types and categories analysis
 
 #### Individual Charts
 
 ```
-[squash_stats_dashboard charts="venue-map"]
+[squash_court_stats charts="venue-map"]
 ```
 Just the interactive map
 
 ```
-[squash_stats_dashboard charts="summary-stats,top-venues,top-courts"]
+[squash_court_stats charts="summary-stats,top-venues,top-courts"]
 ```
 Multiple specific charts
 
 ```
-[squash_stats_dashboard charts="venue-map,continental-breakdown,timeline"]
+[squash_court_stats charts="venue-map,continental-breakdown,timeline"]
 ```
 Custom combination
 
@@ -101,39 +101,39 @@ Custom combination
 
 **Example 1: Default Dashboard**
 ```
-[squash_stats_dashboard]
+[squash_court_stats]
 ```
 
 **Example 2: Country Dashboard**
 ```
-[squash_stats_dashboard dashboard="country"]
+[squash_court_stats dashboard="country"]
 ```
 
 **Example 3: Just the Map**
 ```
-[squash_stats_dashboard charts="venue-map"]
+[squash_court_stats charts="venue-map"]
 ```
 
 **Example 4: Custom Combination**
 ```
-[squash_stats_dashboard charts="summary-stats,venue-map,top-venues,top-courts"]
+[squash_court_stats charts="summary-stats,venue-map,top-venues,top-courts"]
 ```
 
 **Example 3: Custom CSS Class**
 ```
-[squash_stats_dashboard class="my-custom-class"]
+[squash_court_stats class="my-custom-class"]
 ```
 
 **Example 5: With Custom CSS Class**
 ```
-[squash_stats_dashboard class="my-custom-class"]
+[squash_court_stats class="my-custom-class"]
 ```
 
 ## Technical Details
 
 ### How It Works
 
-1. **Shortcode Registration:** Registers `[squash_stats_dashboard]` shortcode
+1. **Shortcode Registration:** Registers `[squash_court_stats]` shortcode
 2. **Content Fetching:** Pulls HTML content from `https://stats.squashplayers.app`
 3. **Asset Loading:** Dynamically loads Vite-built assets using manifest.json
 4. **Smart Enqueueing:** Only loads assets on pages that use the shortcode
@@ -164,7 +164,7 @@ squash-court-stats/
 ### Shortcode Not Working
 
 1. Make sure the plugin is activated
-2. Check that you're using the exact shortcode: `[squash_stats_dashboard]`
+2. Check that you're using the exact shortcode: `[squash_court_stats]`
 3. Try viewing the page in an incognito window (cache issue)
 
 ### Assets Not Loading
@@ -186,7 +186,7 @@ When ready to replace the old Zoho Analytics page:
 
 1. **Test thoroughly** on your new page (e.g., `/squash-venues-courts-world-stats-new/`)
 2. **Edit the old page** at `/squash-venues-courts-world-stats/`
-3. **Replace the Zoho iframe** with `[squash_stats_dashboard]`
+3. **Replace the Zoho iframe** with `[squash_court_stats]`
 4. **Publish** - Done! The new dashboard is now live
 
 ## Support
@@ -241,7 +241,7 @@ GPL v2 or later
 
 ### 1.1.0 (2025-11-10)
 - **BREAKING CHANGE:** Switched from custom URL to shortcode-based system
-- Added `[squash_stats_dashboard]` shortcode
+- Added `[squash_court_stats]` shortcode
 - Added optional `height` and `class` parameters
 - Removed template-based approach for simpler implementation
 - Smart asset enqueueing (only loads on pages with shortcode)

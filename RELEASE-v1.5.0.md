@@ -75,7 +75,7 @@
 
 **Use:**
 ```
-[squash_stats_dashboard]  - Full stats dashboard
+[squash_court_stats]  - Full stats dashboard
 [squash_trivia]           - Full trivia page
 [squash_trivia section="high-altitude"]  - Specific section
 ```

@@ -234,7 +234,7 @@
      * Update shortcode based on selection
      */
     function updateShortcode() {
-        let shortcode = '[squash_stats_dashboard';
+        let shortcode = '[squash_court_stats';
         
         if (selectedDashboard) {
             shortcode += ` dashboard="${selectedDashboard}"`;

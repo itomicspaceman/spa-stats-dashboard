@@ -40,6 +40,6 @@ Write-Host "3. Activate in WordPress Admin -> Plugins" -ForegroundColor White
 Write-Host ""
 Write-Host "To use:" -ForegroundColor Cyan
 Write-Host "1. Create a new WordPress page (or edit an existing one)" -ForegroundColor White
-Write-Host "2. Add the shortcode: [squash_stats_dashboard]" -ForegroundColor White
+Write-Host "2. Add the shortcode: [squash_court_stats]" -ForegroundColor White
 Write-Host "3. Publish!" -ForegroundColor White
 

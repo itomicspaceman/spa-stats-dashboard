@@ -28,7 +28,7 @@ You have **complete flexibility** to create any page you want:
 Simply paste this into your page content:
 
 ```
-[squash_stats_dashboard]
+[squash_court_stats]
 ```
 
 That's it! 🎉
@@ -42,7 +42,7 @@ That's it! 🎉
 If you want to control the minimum height:
 
 ```
-[squash_stats_dashboard height="2000px"]
+[squash_court_stats height="2000px"]
 ```
 
 ### Custom CSS Class
@@ -50,13 +50,13 @@ If you want to control the minimum height:
 If you want to add your own styling:
 
 ```
-[squash_stats_dashboard class="full-width-stats"]
+[squash_court_stats class="full-width-stats"]
 ```
 
 ### Both Together
 
 ```
-[squash_stats_dashboard height="2000px" class="full-width-stats"]
+[squash_court_stats height="2000px" class="full-width-stats"]
 ```
 
 ---
@@ -83,14 +83,14 @@ You can even use it **multiple times** on different pages if needed!
 3. **Compare side-by-side** with old Zoho version
 4. **When satisfied:**
    - Edit the old page
-   - Replace Zoho iframe with `[squash_stats_dashboard]`
+   - Replace Zoho iframe with `[squash_court_stats]`
    - Publish
 5. **Delete the test page** (optional)
 
 ### Quick Approach
 
 1. **Edit existing page** at `/squash-venues-courts-world-stats/`
-2. **Replace Zoho iframe** with `[squash_stats_dashboard]`
+2. **Replace Zoho iframe** with `[squash_court_stats]`
 3. **Update** - Done!
 
 ---
@@ -100,7 +100,7 @@ You can even use it **multiple times** on different pages if needed!
 ### "The shortcode just shows as text"
 
 - Make sure the plugin is **activated**
-- Check you're using square brackets: `[squash_stats_dashboard]` not `{squash_stats_dashboard}`
+- Check you're using square brackets: `[squash_court_stats]` not `{squash_court_stats}`
 
 ### "The dashboard isn't loading"
 

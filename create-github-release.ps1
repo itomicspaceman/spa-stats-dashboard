@@ -20,7 +20,7 @@ $body = @"
 ### 📦 Installation
 1. Download ``squash-stats-dashboard.zip``
 2. Upload to WordPress (Plugins → Add New → Upload Plugin)
-3. Activate and use ``[squash_stats_dashboard]`` shortcode
+3. Activate and use ``[squash_court_stats]`` shortcode
 
 ### 🔄 Upgrading from v1.1.0
 - Simply install v1.2.0 over the existing installation

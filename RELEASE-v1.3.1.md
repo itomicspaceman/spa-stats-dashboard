@@ -47,7 +47,7 @@ This is a well-known CSS pattern for breaking out of content containers while ma
 1. Download `squash-stats-dashboard.zip` from this release
 2. Upload to WordPress (Plugins → Add New → Upload Plugin)
 3. Activate the plugin
-4. Add `[squash_stats_dashboard]` to any page
+4. Add `[squash_court_stats]` to any page
 
 ### Upgrade Notes
 

@@ -37,12 +37,12 @@ Write-Host ""
 Write-Host "To use:" -ForegroundColor Cyan
 Write-Host "1. Create a new WordPress page (or edit an existing one)"
 Write-Host "2. Add a shortcode:"
-Write-Host "   - Dashboard: [squash_stats_dashboard]"
+Write-Host "   - Dashboard: [squash_court_stats]"
 Write-Host "   - Trivia: [squash_trivia]"
 Write-Host "3. Publish!"
 Write-Host ""
 Write-Host "Optional parameters:" -ForegroundColor Gray
-Write-Host "  [squash_stats_dashboard height='2000px']"
-Write-Host "  [squash_stats_dashboard class='my-custom-class']"
+Write-Host "  [squash_court_stats height='2000px']"
+Write-Host "  [squash_court_stats class='my-custom-class']"
 Write-Host "  [squash_trivia section='high-altitude']"
 

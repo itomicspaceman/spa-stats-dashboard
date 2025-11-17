@@ -21,7 +21,7 @@ The Squash Court Stats plugin allows you to embed comprehensive squash venue and
 * **Individual Charts:** Select specific charts to create custom dashboards
 * **Visual Admin Interface:** Browse and select charts with thumbnails in WordPress admin
 * **Chart Gallery:** Public gallery to preview all available charts before installing
-* **Shortcode Based:** Use `[squash_stats_dashboard]` and `[squash_trivia]` anywhere
+* **Shortcode Based:** Use `[squash_court_stats]` and `[squash_trivia]` anywhere
 * **Auto-Updates:** Automatic update notifications from GitHub releases
 * **Complete Isolation:** iframe-based embedding prevents CSS/JS conflicts
 * **Multiple Instances:** Use on multiple pages with different chart combinations
@@ -80,14 +80,14 @@ The dashboard is built using Laravel 12 and Vite for asset compilation. See the 
 Go to Settings → Squash Stats in WordPress admin to browse and select charts. Or manually add a shortcode to any page:
 
 **Full Dashboards:**
-* `[squash_stats_dashboard]` - Default world dashboard
-* `[squash_stats_dashboard dashboard="country"]` - Country statistics
-* `[squash_stats_dashboard dashboard="venue-types"]` - Venue types analysis
+* `[squash_court_stats]` - Default world dashboard
+* `[squash_court_stats dashboard="country"]` - Country statistics
+* `[squash_court_stats dashboard="venue-types"]` - Venue types analysis
 
 **Individual Charts:**
-* `[squash_stats_dashboard charts="venue-map"]` - Just the map
-* `[squash_stats_dashboard charts="summary-stats,top-venues"]` - Multiple charts
-* `[squash_stats_dashboard charts="venue-map,continental-breakdown,timeline"]` - Custom combination
+* `[squash_court_stats charts="venue-map"]` - Just the map
+* `[squash_court_stats charts="summary-stats,top-venues"]` - Multiple charts
+* `[squash_court_stats charts="venue-map,continental-breakdown,timeline"]` - Custom combination
 
 **Trivia Page:**
 * `[squash_trivia]` - Full trivia page with all sections
@@ -110,7 +110,7 @@ View the full gallery at https://stats.squashplayers.app/charts
 = Can I customize the appearance? =
 
 Yes! You can add custom CSS classes:
-* `[squash_stats_dashboard class="my-custom-class"]`
+* `[squash_court_stats class="my-custom-class"]`
 
 = Can I use this on multiple pages? =
 
@@ -230,5 +230,5 @@ This plugin connects to the following external services:
 * cdnjs.cloudflare.com - Font Awesome icons
 * fonts.openmaptiles.org - Map font glyphs
 
-All external services are loaded only on pages that use the `[squash_stats_dashboard]` shortcode.
+All external services are loaded only on pages that use the `[squash_court_stats]` shortcode.
 

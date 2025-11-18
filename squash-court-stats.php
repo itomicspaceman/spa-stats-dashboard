@@ -3,7 +3,7 @@
  * Plugin Name: Squash Court Stats
  * Plugin URI: https://stats.squashplayers.app
  * Description: Embeds dashboards and reports from stats.squashplayers.app into WordPress using shortcode [squash_court_stats]. Use dashboard="name" for dashboards or report="name" for trivia reports.
- * Version: 1.6.1
+ * Version: 1.6.2
  * Author: Itomic Apps
  * Author URI: https://www.itomic.com.au
  * License: GPL v2 or later
@@ -37,7 +37,7 @@ class Squash_Stats_Dashboard {
         add_shortcode('squash_court_stats', array($this, 'render_dashboard_shortcode'));
         
         // Add CSS for full-width iframe
-        add_action('wp_head', array($this, 'add_dashboard_styles'));
+        add_action('wp_head', array($this, 'add_dashboard_styles'), 999);
         
         // Add admin help tabs
         add_action('admin_head', array($this, 'add_help_tabs'));
@@ -64,12 +64,32 @@ class Squash_Stats_Dashboard {
      * This breaks the iframe out of WordPress content containers
      */
     public function add_dashboard_styles() {
+        // Try multiple methods to get the current post
         global $post;
         
-        // Only add styles if shortcode is present
-        if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'squash_court_stats')) {
-            ?>
-            <style>
+        // Method 1: Use global $post if available
+        if (empty($post) || !is_a($post, 'WP_Post')) {
+            // Method 2: Try get_queried_object() for singular pages
+            if (is_singular()) {
+                $queried = get_queried_object();
+                if (is_a($queried, 'WP_Post')) {
+                    $post = $queried;
+                }
+            }
+        }
+        
+        // Only add styles if we have a valid post with content
+        if (!isset($post) || !is_a($post, 'WP_Post') || empty($post->post_content)) {
+            return; // Exit early if no valid post
+        }
+        
+        // Check if shortcode is present (safely)
+        // Use function_exists check and wrap in try-catch for extra safety
+        if (function_exists('has_shortcode')) {
+            try {
+                if (has_shortcode($post->post_content, 'squash_court_stats')) {
+                    ?>
+                    <style>
                 /* Responsive dashboard container - works within any WordPress container */
                 .squash-dashboard-wrapper {
                     width: 100%;
@@ -111,8 +131,16 @@ class Squash_Stats_Dashboard {
                     width: 100%;
                     max-width: 100%;
                 }
-            </style>
-            <?php
+                    </style>
+                    <?php
+                }
+            } catch (Exception $e) {
+                // Silently fail - don't break the page if shortcode check fails
+                error_log('Squash Court Stats: Error checking for shortcode: ' . $e->getMessage());
+            } catch (Error $e) {
+                // Catch fatal errors too
+                error_log('Squash Court Stats: Fatal error checking for shortcode: ' . $e->getMessage());
+            }
         }
     }
     
@@ -142,23 +170,25 @@ class Squash_Stats_Dashboard {
         $url = $this->dashboard_url;
         $query_params = array();
         
-        // Track if this is the full trivia dashboard (needs nav visible)
-        $is_full_trivia = false;
-        
         // Handle report parameter (trivia sections)
         if (!empty($atts['report'])) {
             $url .= '/trivia';
             $query_params['section'] = $atts['report'];
-            // Individual reports should hide nav (embed=1 will be added below)
+            // Individual reports: embed=1 will hide header AND sidebar (handled by Laravel)
         }
         // Handle dashboard parameter
         elseif (!empty($atts['dashboard'])) {
             // Special case: dashboard="trivia" goes to full trivia page
             if ($atts['dashboard'] === 'trivia') {
                 $url .= '/trivia';
-                // No section parameter = show full trivia page
-                $is_full_trivia = true; // Don't hide nav for full trivia page
+                // No section parameter = show full trivia page with sidebar
+                // Laravel will show sidebar when embed=1 but no section is specified
+            } elseif ($atts['dashboard'] === 'world') {
+                // World dashboard: go directly to root route (no redirect needed)
+                // Root route already renders world dashboard
+                // Don't add /render, just use root with query params
             } else {
+                // Other dashboards: use /render route which will redirect appropriately
                 $url .= '/render';
                 $query_params['dashboard'] = $atts['dashboard'];
             }
@@ -180,17 +210,15 @@ class Squash_Stats_Dashboard {
             $query_params['title'] = $atts['title'];
         }
         
-        // Add embed parameter to hide navigation/header
-        // Exception: Full trivia dashboard should show nav, so don't add embed=1
-        if (!$is_full_trivia) {
-            $query_params['embed'] = '1';
-        }
+        // Always add embed parameter to hide header/navigation for ALL embedded content
+        // Laravel trivia page will automatically show sidebar for full trivia (no section)
+        // and hide sidebar for individual reports (with section parameter)
+        $query_params['embed'] = '1';
         
         // Build query string
         if (!empty($query_params)) {
             $url .= '?' . http_build_query($query_params);
         }
-        // Note: If no query params and not full trivia, embed=1 is already in query_params above
         
         // Generate unique ID for this iframe instance
         $iframe_id = 'squash-dashboard-' . uniqid();

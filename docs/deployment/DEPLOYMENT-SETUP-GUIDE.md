@@ -4,7 +4,7 @@
 
 ✅ **Code is deployed** - The embed parameter changes are live  
 ✅ **Webhook script exists** - `/home/stats/repo/webhook-deploy.php`  
-❌ **GitHub webhook NOT configured** - Needs to be added manually  
+⚠️ **GitHub webhook status unknown** - Needs to be verified  
 
 ## The Problem
 

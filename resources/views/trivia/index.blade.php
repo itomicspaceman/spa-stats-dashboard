@@ -42,6 +42,9 @@
                     <a href="{{ route('trivia.court-graveyard') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'court-graveyard') ? 'active' : '' }}" data-trivia-link data-map-id="court-graveyard">
                         <i class="fas fa-skull-crossbones me-2"></i>Squash Court Graveyard
                     </a>
+                    <a href="{{ route('trivia.nearest-courts') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'nearest-courts') ? 'active' : '' }}" data-trivia-link data-map-id="nearest-courts">
+                        <i class="fas fa-walking me-2"></i>Nearest Squash Venues
+                    </a>
                 </div>
                 <div class="card-footer text-muted small">
                     <i class="fas fa-info-circle me-1"></i>More trivia maps coming soon!
@@ -100,6 +103,11 @@
             {{-- Squash Court Graveyard --}}
             <div id="court-graveyard" class="trivia-section {{ (!isset($activeMap) || $activeMap !== 'court-graveyard') ? 'd-none' : '' }}">
                 <x-trivia.court-graveyard />
+            </div>
+            
+            {{-- Nearest Squash Venues --}}
+            <div id="nearest-courts" class="trivia-section {{ (!isset($activeMap) || $activeMap !== 'nearest-courts') ? 'd-none' : '' }}">
+                <x-trivia.nearest-courts />
             </div>
             
             {{-- Placeholder for future trivia maps --}}

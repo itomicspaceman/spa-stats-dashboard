@@ -1509,5 +1509,78 @@ class SquashDataAggregator
 
         return $reasons->toArray();
     }
+
+    /**
+     * Get venues that are nearest to each other (within 0.3km).
+     * Returns pairs of venues with their distances, deduplicated.
+     *
+     * @return array
+     */
+    public function nearestCourts(): array
+    {
+        // Fetch venues with their nearest venues (within 0.3km = 300m)
+        $venues = DB::connection('squash_remote')
+            ->table('venues as v1')
+            ->join('venues as v2', 'v1.nearest_venue_id', '=', 'v2.id')
+            ->join('countries as c', 'v1.country_id', '=', 'c.id')
+            ->whereIn('v1.status', ['0', '1', '3']) // Active, Pending, FlaggedForDeletion
+            ->whereNotNull('v1.latitude')
+            ->whereNotNull('v1.longitude')
+            ->where('v1.nearest_venue_km', '<', 0.3) // Less than 300 meters
+            ->select([
+                'v1.id as source_id',
+                'v1.name as source_name',
+                'v1.latitude as source_lat',
+                'v1.longitude as source_lon',
+                'v1.g_map_url as source_g_map_url',
+                'v1.g_place_id as source_g_place_id',
+                'v1.country_id',
+                'v1.no_of_courts as source_no_of_courts',
+                'v2.id as target_id',
+                'v2.name as target_name',
+                'v2.latitude as target_lat',
+                'v2.longitude as target_lon',
+                'v2.g_map_url as target_g_map_url',
+                'v2.g_place_id as target_g_place_id',
+                'v2.no_of_courts as target_no_of_courts',
+                DB::raw('v1.nearest_venue_km * 1000 as distance'), // Convert to meters
+                'c.name as country_name',
+            ])
+            ->orderBy('v1.nearest_venue_km', 'asc') // Order by the actual column
+            ->get();
+
+        // Deduplicate pairs (A-B is same as B-A)
+        $processedPairs = [];
+        $nearbyVenues = [];
+
+        foreach ($venues as $venue) {
+            $pairKey = min($venue->source_id, $venue->target_id) . '-' . max($venue->source_id, $venue->target_id);
+
+            if (!isset($processedPairs[$pairKey])) {
+                $nearbyVenues[] = [
+                    'source_id' => (int) $venue->source_id,
+                    'source_name' => $venue->source_name,
+                    'source_lat' => (float) $venue->source_lat,
+                    'source_lon' => (float) $venue->source_lon,
+                    'source_g_map_url' => $venue->source_g_map_url,
+                    'source_g_place_id' => $venue->source_g_place_id,
+                    'source_no_of_courts' => (int) $venue->source_no_of_courts,
+                    'target_id' => (int) $venue->target_id,
+                    'target_name' => $venue->target_name,
+                    'target_lat' => (float) $venue->target_lat,
+                    'target_lon' => (float) $venue->target_lon,
+                    'target_g_map_url' => $venue->target_g_map_url,
+                    'target_g_place_id' => $venue->target_g_place_id,
+                    'target_no_of_courts' => (int) $venue->target_no_of_courts,
+                    'country' => $venue->country_name,
+                    'distance' => (int) round($venue->distance),
+                ];
+
+                $processedPairs[$pairKey] = true;
+            }
+        }
+
+        return $nearbyVenues;
+    }
 }
 

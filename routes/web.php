@@ -34,6 +34,7 @@ Route::get('/trivia', function () {
         'word-cloud' => 'countries-wordcloud',
         'loneliest' => 'loneliest-courts',
         'graveyard' => 'court-graveyard',
+        'nearest-courts' => 'nearest-courts',
     ];
     
     $activeMap = isset($section) && isset($sectionMap[$section]) 
@@ -92,6 +93,10 @@ Route::get('/trivia/loneliest-courts', function () {
 Route::get('/trivia/court-graveyard', function () {
     return view('trivia.index', ['activeMap' => 'court-graveyard']);
 })->name('trivia.court-graveyard');
+
+Route::get('/trivia/nearest-courts', function () {
+    return view('trivia.index', ['activeMap' => 'nearest-courts']);
+})->name('trivia.nearest-courts');
 
 // Dynamic chart rendering
 Route::get('/render', [ChartController::class, 'render'])->name('charts.render');

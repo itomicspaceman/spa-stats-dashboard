@@ -434,6 +434,20 @@ class SquashStatsController extends Controller
     }
 
     /**
+     * Get nearest courts (venues within 0.3km of each other).
+     */
+    public function nearestCourts(Request $request): JsonResponse
+    {
+        $cacheKey = "squash:nearest_courts";
+
+        $data = Cache::remember($cacheKey, 10800, function () {
+            return $this->aggregator->nearestCourts();
+        });
+
+        return response()->json($data);
+    }
+
+    /**
      * Get list of venue deletion reasons.
      */
     public function deletionReasons(): JsonResponse

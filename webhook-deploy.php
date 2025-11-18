@@ -93,30 +93,28 @@ if (!is_dir($repoDir)) {
     die(json_encode(['error' => $errorMsg]));
 }
 
-// Pull from GitHub and run deploy.sh
-// Note: We use deploy.sh instead of cPanel's UAPI VersionControlDeployment because:
-// - cPanel's UAPI returns success but doesn't actually deploy (repository not marked as "deployable")
-// - Custom deployment scripts are the industry-standard approach for automated cPanel deployments
-// - Provides better control, logging, and reliability
-// Run as 'stats' user to avoid permission issues
-$command = sprintf(
-    'su - stats -c "cd %s && git pull origin main >> /home/stats/logs/deploy-output.log 2>&1 && bash %s >> /home/stats/logs/deploy-output.log 2>&1" &',
-    escapeshellarg($repoDir),
-    escapeshellarg($deployScript)
-);
+// Trigger deployment by creating a flag file
+// Note: We use a trigger file + cron job approach because:
+// - Webhook runs as web server user (nobody) which can't execute deploy.sh
+// - Cron job runs as root and can properly execute deployment
+// - This is a proven pattern for webhook deployments requiring elevated privileges
+$triggerFile = '/home/stats/logs/webhook-trigger';
+$triggerData = json_encode([
+    'timestamp' => time(),
+    'commit' => substr($data['head_commit']['id'] ?? '', 0, 7),
+    'message' => $data['head_commit']['message'] ?? 'no message',
+    'pusher' => $data['pusher']['name'] ?? 'unknown'
+]);
+
+if (file_put_contents($triggerFile, $triggerData) === false) {
+    $errorMsg = "Failed to create deployment trigger file";
+    file_put_contents($logFile, "[ERROR] $errorMsg\n", FILE_APPEND);
+    http_response_code(500);
+    die(json_encode(['error' => $errorMsg]));
+}
 
 $logMessage = sprintf(
-    "[%s] Executing: git pull + deploy.sh (custom deployment script)\n",
-    date('Y-m-d H:i:s')
-);
-file_put_contents($logFile, $logMessage, FILE_APPEND);
-
-// Execute in background
-exec($command);
-
-// Log execution attempt
-$logMessage = sprintf(
-    "[%s] Deployment initiated. Check deploy-output.log for results.\n",
+    "[%s] Deployment trigger created. Cron job will process it shortly.\n",
     date('Y-m-d H:i:s')
 );
 file_put_contents($logFile, $logMessage, FILE_APPEND);

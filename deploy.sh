@@ -53,9 +53,11 @@ CURRENT_USER=$(id -u)
 if [ "$CURRENT_USER" -eq 0 ]; then
     # Running as root, use su
     RUN_AS_USER="su - $PHP_USER -c"
-elif command -v sudo >/dev/null 2>&1; then
-    # Running as regular user, sudo is available
-    RUN_AS_USER="sudo -u $PHP_USER"
+elif command -v sudo >/dev/null 2>&1 || [ -f /usr/bin/sudo ]; then
+    # sudo is available (check both PATH and common location)
+    SUDO_CMD=$(command -v sudo 2>/dev/null || echo "/usr/bin/sudo")
+    RUN_AS_USER="$SUDO_CMD -u $PHP_USER"
+    log "📝 Using '$SUDO_CMD' to switch to $PHP_USER"
 elif [ "$CURRENT_USER" = "$(id -u $PHP_USER 2>/dev/null)" ]; then
     # Already running as the correct user, no need to switch
     RUN_AS_USER=""
@@ -148,9 +150,15 @@ rm -f "$CURRENT_DIR/bootstrap/cache/*.php" 2>/dev/null || true
 rm -rf "$CURRENT_DIR/storage/framework/views/*" 2>/dev/null || true
 
 # Try to clear Laravel caches using artisan (may fail if .env is missing, that's OK)
-$RUN_AS_USER "cd $CURRENT_DIR && php artisan view:clear" 2>/dev/null || warning "Could not clear view cache (may need .env configuration)"
-$RUN_AS_USER "cd $CURRENT_DIR && php artisan config:clear" 2>/dev/null || warning "Could not clear config cache"
-$RUN_AS_USER "cd $CURRENT_DIR && php artisan cache:clear" 2>/dev/null || warning "Could not clear application cache"
+if [ -n "$RUN_AS_USER" ]; then
+    $RUN_AS_USER "cd $CURRENT_DIR && php artisan view:clear" 2>/dev/null || warning "Could not clear view cache (may need .env configuration)"
+    $RUN_AS_USER "cd $CURRENT_DIR && php artisan config:clear" 2>/dev/null || warning "Could not clear config cache"
+    $RUN_AS_USER "cd $CURRENT_DIR && php artisan cache:clear" 2>/dev/null || warning "Could not clear application cache"
+else
+    (cd "$CURRENT_DIR" && php artisan view:clear) 2>/dev/null || warning "Could not clear view cache (may need .env configuration)"
+    (cd "$CURRENT_DIR" && php artisan config:clear) 2>/dev/null || warning "Could not clear config cache"
+    (cd "$CURRENT_DIR" && php artisan cache:clear) 2>/dev/null || warning "Could not clear application cache"
+fi
 
 # Ensure build symlink is correct
 log "🔗 Ensuring build symlink is correct..."

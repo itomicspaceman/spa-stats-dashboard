@@ -32,8 +32,13 @@ class ChartController extends Controller
                 abort(404, "Dashboard '{$dashboard}' not found");
             }
             
-            // Redirect to the dashboard's route
-            return redirect()->route($dashboardData['route']);
+            // Redirect to the dashboard's route, preserving query parameters (especially embed=1)
+            $url = route($dashboardData['route']);
+            $queryParams = $request->except(['dashboard']); // Preserve all params except dashboard
+            if (!empty($queryParams)) {
+                $url .= '?' . http_build_query($queryParams);
+            }
+            return redirect($url);
         }
         
         // Mode 2: Render specific charts

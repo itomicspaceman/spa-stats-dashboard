@@ -1350,19 +1350,22 @@ async function initCountriesWithoutVenuesMap() {
         container: 'countries-without-map',
         style: {
             version: 8,
+            glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
             sources: {
-                'countries': {
-                    type: 'vector',
-                    url: 'https://demotiles.maplibre.org/tiles/tiles.json'
+                'osm': {
+                    type: 'raster',
+                    tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tileSize: 256,
+                    attribution: '© OpenStreetMap contributors'
                 }
             },
             layers: [
                 {
-                    id: 'background',
-                    type: 'background',
-                    paint: {
-                        'background-color': '#f0f9ff'
-                    }
+                    id: 'osm-tiles',
+                    type: 'raster',
+                    source: 'osm',
+                    minzoom: 0,
+                    maxzoom: 19
                 }
             ]
         },

@@ -65,12 +65,16 @@ class Squash_Stats_Dashboard_Updater {
         $remote_version = $this->get_remote_version();
         
         if ($remote_version && version_compare($this->version, $remote_version->version, '<')) {
+            // CRITICAL: The 'plugin' field MUST match the installed plugin's basename exactly
+            // Format: 'plugin-dir/plugin-file.php' (e.g., 'squash-court-stats/squash-court-stats.php')
+            // WordPress uses this to identify it as the SAME plugin (not a new installation)
+            // If this doesn't match, WordPress will treat it as a new plugin and create duplicates
             $plugin_data = array(
-                'slug' => dirname($this->plugin_slug),
-                'plugin' => $this->plugin_slug,
+                'slug' => dirname($this->plugin_slug),  // Plugin directory name (e.g., 'squash-court-stats')
+                'plugin' => $this->plugin_slug,          // CRITICAL: Full plugin path (e.g., 'squash-court-stats/squash-court-stats.php')
                 'new_version' => $remote_version->version,
                 'url' => $remote_version->homepage,
-                'package' => $remote_version->download_url,
+                'package' => $remote_version->download_url,  // ZIP file download URL from GitHub release
                 'icons' => array(),
                 'banners' => array(),
                 'tested' => $remote_version->tested,
@@ -78,6 +82,9 @@ class Squash_Stats_Dashboard_Updater {
                 'compatibility' => new stdClass(),
             );
             
+            // CRITICAL: Use plugin_slug as the array key
+            // WordPress uses this key to match against installed plugins
+            // If the key doesn't match an installed plugin, update won't appear
             $transient->response[$this->plugin_slug] = (object) $plugin_data;
         }
         
@@ -131,9 +138,12 @@ class Squash_Stats_Dashboard_Updater {
             }
         }
         
-        // If no asset found, use the zipball URL
+        // CRITICAL: If no ZIP asset found, we cannot update
+        // zipball_url is a source code archive, not a WordPress plugin ZIP
+        // WordPress requires a properly structured plugin ZIP file
         if (empty($download_url)) {
-            $download_url = $data->zipball_url;
+            error_log('Squash Court Stats: No ZIP file found in GitHub release. Release must include squash-court-stats.zip as an asset.');
+            return false;  // Fail gracefully - don't offer broken update
         }
         
         // Parse version from tag (remove 'v' prefix if present)
@@ -184,7 +194,7 @@ class Squash_Stats_Dashboard_Updater {
         }
         
         $result = (object) array(
-            'name' => 'Squash Stats Dashboard',
+            'name' => 'Squash Court Stats',
             'slug' => dirname($this->plugin_slug),
             'version' => $remote_version->version,
             'author' => '<a href="https://www.itomic.com.au">Itomic Apps</a>',
@@ -202,6 +212,8 @@ class Squash_Stats_Dashboard_Updater {
     
     /**
      * Handle post-installation cleanup
+     * CRITICAL: This ensures the plugin is installed to the correct directory
+     * and WordPress recognizes it as the same plugin (not a new installation)
      * 
      * @param bool $response Installation response
      * @param array $hook_extra Extra hook data
@@ -209,20 +221,29 @@ class Squash_Stats_Dashboard_Updater {
      * @return array Modified result
      */
     public function after_install($response, $hook_extra, $result) {
-        global $wp_filesystem;
-        
-        // Get the plugin directory
-        $plugin_dir = WP_PLUGIN_DIR . '/' . dirname($this->plugin_slug);
-        
-        // If the plugin was installed to a different directory, move it
-        if (isset($result['destination']) && $result['destination'] !== $plugin_dir) {
-            // Move to correct location
-            $wp_filesystem->move($result['destination'], $plugin_dir, true);
-            $result['destination'] = $plugin_dir;
+        // CRITICAL: Only process our plugin's installation
+        if (!isset($hook_extra['plugin']) || $hook_extra['plugin'] !== $this->plugin_slug) {
+            return $result;
         }
         
-        // Clear update cache
+        // Verify installation was successful
+        if (is_wp_error($result)) {
+            error_log('Squash Court Stats: Update installation failed: ' . $result->get_error_message());
+            return $result;
+        }
+        
+        // SIMPLIFIED: Don't interfere with WordPress's file handling
+        // WordPress handles plugin installation correctly on its own
+        // We only need to clear caches so the new version is recognized
+        
+        // Clear update cache so WordPress recognizes the new version
         delete_transient($this->cache_key);
+        delete_site_transient('update_plugins');
+        
+        // Force WordPress to rebuild plugin registry
+        if (function_exists('wp_clean_plugins_cache')) {
+            wp_clean_plugins_cache(true);
+        }
         
         return $result;
     }
@@ -238,8 +259,9 @@ class Squash_Stats_Dashboard_Updater {
             return;
         }
         
-        echo '<br><strong>Note:</strong> This update will be downloaded from GitHub. ';
-        echo 'Please ensure you have a backup before updating.';
+        echo '<br><strong>Note:</strong> This update will be downloaded from GitHub releases. ';
+        echo 'Please ensure you have a backup before updating. ';
+        echo 'You can enable auto-updates from the Plugins page.';
     }
     
     /**

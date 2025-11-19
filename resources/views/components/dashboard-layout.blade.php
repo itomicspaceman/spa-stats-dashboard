@@ -122,7 +122,7 @@
 
     @if($showSearch)
     <!-- Geographic Search - Always show when showSearch is true, even when embedded -->
-    <x-geographic-search />
+    <x-geographic-search :embedded="$isEmbedded" />
     @endif
 
     <!-- Main Content -->

@@ -1,4 +1,6 @@
-<div class="geographic-search-container bg-white border-bottom shadow-sm py-3">
+@props(['embedded' => false])
+
+<div class="geographic-search-container bg-white border-bottom shadow-sm py-3 {{ $embedded ? 'not-sticky' : '' }}">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6">
@@ -33,6 +35,13 @@
         z-index: 999;
     }
     
+    /* When embedded, don't use sticky positioning to avoid overlaying content */
+    .geographic-search-container.not-sticky {
+        position: relative !important;
+        top: 0 !important;
+        z-index: auto !important;
+    }
+    
     .search-result-item {
         padding: 0.75rem 1rem;
         cursor: pointer;
@@ -62,6 +71,27 @@
 <script>
     // Geographic Search Component
     (function() {
+        // Fallback: Detect if we're in an iframe and apply not-sticky class if needed
+        // This ensures the search bar doesn't float when embedded, even if embed param isn't detected
+        function applyNotStickyIfEmbedded() {
+            const searchContainer = document.querySelector('.geographic-search-container');
+            if (searchContainer && !searchContainer.classList.contains('not-sticky')) {
+                // Check if we're in an iframe OR if embed parameter is in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const isEmbedded = window.self !== window.top || urlParams.has('embed') || urlParams.has('embedded');
+                if (isEmbedded) {
+                    searchContainer.classList.add('not-sticky');
+                }
+            }
+        }
+        
+        // Run immediately if DOM is ready, otherwise wait
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyNotStickyIfEmbedded);
+        } else {
+            applyNotStickyIfEmbedded();
+        }
+        
         // Dynamically determine API base URL
         const API_BASE = window.location.hostname === 'spa.test' 
             ? 'https://spa.test/api/squash'

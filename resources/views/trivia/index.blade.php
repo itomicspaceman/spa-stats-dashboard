@@ -1,3 +1,8 @@
+@php
+    // Preserve embed parameter in navigation links
+    $embedParam = request()->has('embed') ? '?embed=' . request()->get('embed') : '';
+@endphp
+
 <x-dashboard-layout 
     title="Squash Trivia - Fun Facts & Maps" 
     :hero="['title' => 'Squash Trivia', 'subtitle' => 'Fun facts, interesting maps, and quirky statistics about squash worldwide']"
@@ -12,37 +17,37 @@
                     <h6 class="mb-0"><i class="fas fa-list me-2"></i>Trivia Maps</h6>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ route('trivia.countries-without-venues') }}" class="list-group-item list-group-item-action {{ (!isset($activeMap) || $activeMap === 'countries-without-venues') ? 'active' : '' }}" data-trivia-link data-map-id="countries-without-venues">
+                    <a href="{{ route('trivia.countries-without-venues') . $embedParam }}" class="list-group-item list-group-item-action {{ (!isset($activeMap) || $activeMap === 'countries-without-venues') ? 'active' : '' }}" data-trivia-link data-map-id="countries-without-venues">
                         <i class="fas fa-globe-americas me-2"></i>Countries Without Venues
                     </a>
-                    <a href="{{ route('trivia.high-altitude-venues') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'highest-venues') ? 'active' : '' }}" data-trivia-link data-map-id="highest-venues">
+                    <a href="{{ route('trivia.high-altitude-venues') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'highest-venues') ? 'active' : '' }}" data-trivia-link data-map-id="highest-venues">
                         <i class="fas fa-mountain me-2"></i>High Altitude Venues
                     </a>
-                    <a href="{{ route('trivia.extreme-latitude-venues') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'extreme-latitude') ? 'active' : '' }}" data-trivia-link data-map-id="extreme-latitude">
+                    <a href="{{ route('trivia.extreme-latitude-venues') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'extreme-latitude') ? 'active' : '' }}" data-trivia-link data-map-id="extreme-latitude">
                         <i class="fas fa-compass me-2"></i>Most Northerly/Southerly
                     </a>
-                    <a href="{{ route('trivia.hotels-resorts') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'hotels-resorts') ? 'active' : '' }}" data-trivia-link data-map-id="hotels-resorts">
+                    <a href="{{ route('trivia.hotels-resorts') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'hotels-resorts') ? 'active' : '' }}" data-trivia-link data-map-id="hotels-resorts">
                         <i class="fas fa-hotel me-2"></i>Hotels & Resorts
                     </a>
-                    <a href="{{ route('trivia.countries-stats') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'countries-stats') ? 'active' : '' }}" data-trivia-link data-map-id="countries-stats">
+                    <a href="{{ route('trivia.countries-stats') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'countries-stats') ? 'active' : '' }}" data-trivia-link data-map-id="countries-stats">
                         <i class="fas fa-table me-2"></i>Countries by Pop. & Area
                     </a>
-                    <a href="{{ route('trivia.unknown-courts') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'unknown-courts') ? 'active' : '' }}" data-trivia-link data-map-id="unknown-courts">
+                    <a href="{{ route('trivia.unknown-courts') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'unknown-courts') ? 'active' : '' }}" data-trivia-link data-map-id="unknown-courts">
                         <i class="fas fa-question-circle me-2"></i>Unknown # of Courts
                     </a>
-                    <a href="{{ route('trivia.country-club-100') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'country-club-100') ? 'active' : '' }}" data-trivia-link data-map-id="country-club-100">
+                    <a href="{{ route('trivia.country-club-100') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'country-club-100') ? 'active' : '' }}" data-trivia-link data-map-id="country-club-100">
                         <i class="fas fa-trophy me-2"></i>The 100% Country Club
                     </a>
-                    <a href="{{ route('trivia.countries-wordcloud') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'countries-wordcloud') ? 'active' : '' }}" data-trivia-link data-map-id="countries-wordcloud">
+                    <a href="{{ route('trivia.countries-wordcloud') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'countries-wordcloud') ? 'active' : '' }}" data-trivia-link data-map-id="countries-wordcloud">
                         <i class="fas fa-cloud me-2"></i>Countries Word Cloud
                     </a>
-                    <a href="{{ route('trivia.loneliest-courts') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'loneliest-courts') ? 'active' : '' }}" data-trivia-link data-map-id="loneliest-courts">
+                    <a href="{{ route('trivia.loneliest-courts') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'loneliest-courts') ? 'active' : '' }}" data-trivia-link data-map-id="loneliest-courts">
                         <i class="fas fa-map-marker-alt me-2"></i>Loneliest Squash Courts
                     </a>
-                    <a href="{{ route('trivia.court-graveyard') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'court-graveyard') ? 'active' : '' }}" data-trivia-link data-map-id="court-graveyard">
+                    <a href="{{ route('trivia.court-graveyard') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'court-graveyard') ? 'active' : '' }}" data-trivia-link data-map-id="court-graveyard">
                         <i class="fas fa-skull-crossbones me-2"></i>Squash Court Graveyard
                     </a>
-                    <a href="{{ route('trivia.nearest-courts') }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'nearest-courts') ? 'active' : '' }}" data-trivia-link data-map-id="nearest-courts">
+                    <a href="{{ route('trivia.nearest-courts') . $embedParam }}" class="list-group-item list-group-item-action {{ (isset($activeMap) && $activeMap === 'nearest-courts') ? 'active' : '' }}" data-trivia-link data-map-id="nearest-courts">
                         <i class="fas fa-walking me-2"></i>Nearest Squash Venues
                     </a>
                 </div>

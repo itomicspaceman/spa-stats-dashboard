@@ -64,8 +64,25 @@ class SquashDataAggregator
                 break;
 
             case 'state':
-                // Convert state abbreviation to full name if needed
-                $stateName = $this->normalizeStateName($code);
+                // If code is numeric, it's a state ID - look up the name
+                if (is_numeric($code)) {
+                    $state = DB::connection('squash_remote')
+                        ->table('states')
+                        ->where('id', $code)
+                        ->first();
+                    
+                    if ($state) {
+                        $stateName = $state->name;
+                    } else {
+                        // State ID not found, no results will match
+                        $query->whereRaw('1 = 0');
+                        break;
+                    }
+                } else {
+                    // Convert state abbreviation to full name if needed
+                    $stateName = $this->normalizeStateName($code);
+                }
+                
                 // Filter by state name in the venues.state text field
                 $query->where('venues.state', $stateName);
                 break;
@@ -1365,8 +1382,25 @@ class SquashDataAggregator
                     $query->where('c1.alpha_3_code', strtoupper($code));
                 }
             } elseif ($type === 'state') {
-                // Convert state abbreviation to full name if needed
-                $stateName = $this->normalizeStateName($code);
+                // If code is numeric, it's a state ID - look up the name
+                if (is_numeric($code)) {
+                    $state = DB::connection('squash_remote')
+                        ->table('states')
+                        ->where('id', $code)
+                        ->first();
+                    
+                    if ($state) {
+                        $stateName = $state->name;
+                    } else {
+                        // State ID not found, no results will match
+                        $query->whereRaw('1 = 0');
+                        return $query->select([])->get()->toArray();
+                    }
+                } else {
+                    // Convert state abbreviation to full name if needed
+                    $stateName = $this->normalizeStateName($code);
+                }
+                
                 // Filter by state name in the venues.state text field
                 $query->where('v1.state', $stateName);
             }

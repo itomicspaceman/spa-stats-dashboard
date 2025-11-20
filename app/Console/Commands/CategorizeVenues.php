@@ -7,6 +7,7 @@ use App\Services\VenueCategorizer;
 use App\Services\VenueCategoryUpdater;
 use App\Services\NewCategoryDetector;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CategorizeVenues extends Command
 {
@@ -106,6 +107,12 @@ class CategorizeVenues extends Command
         if (!$dryRun) {
             $this->updateDatabase($results, $minConfidence);
         }
+
+        // Show venues flagged for deletion in this batch
+        $this->showFlaggedVenuesFromBatch($results);
+
+        // Show all venues currently flagged for deletion
+        $this->showAllFlaggedVenues();
 
         // Show new category suggestions
         $this->showNewCategorySuggestions();
@@ -738,5 +745,76 @@ class CategorizeVenues extends Command
         ];
 
         return $categories[$categoryId] ?? "Unknown (ID: {$categoryId})";
+    }
+
+    /**
+     * Show venues flagged for deletion in the current batch.
+     */
+    protected function showFlaggedVenuesFromBatch(array $results): void
+    {
+        $flaggedVenues = [];
+        
+        foreach ($results as $result) {
+            if ($result['venue_flagged_for_deletion'] ?? false || $result['court_count_flagged_for_deletion'] ?? false) {
+                $flaggedVenues[] = [
+                    'name' => $result['venue_name'],
+                    'address' => $result['venue_address'],
+                ];
+            }
+        }
+
+        if (!empty($flaggedVenues)) {
+            $this->newLine();
+            $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            $this->warn('🗑️  Venues Flagged for Deletion in This Batch:');
+            $this->newLine();
+            
+            foreach ($flaggedVenues as $venue) {
+                $this->line("{$venue['name']}, {$venue['address']}");
+            }
+        }
+    }
+
+    /**
+     * Show all venues currently flagged for deletion in the database.
+     */
+    protected function showAllFlaggedVenues(): void
+    {
+        $flaggedVenues = Venue::where('status', '3') // FlaggedForDeletion
+            ->orderBy('date_flagged_for_deletion', 'desc')
+            ->get(['id', 'name', 'physical_address', 'suburb', 'state', 'country_id']);
+
+        if ($flaggedVenues->isEmpty()) {
+            return;
+        }
+
+        $this->newLine();
+        $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->warn('🗑️  ALL Venues Currently Flagged for Deletion:');
+        $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->newLine();
+        $this->line("Total: {$flaggedVenues->count()} venue(s)");
+        $this->newLine();
+
+        // Load country names for addresses
+        $countryIds = $flaggedVenues->pluck('country_id')->unique()->filter();
+        $countries = DB::connection('squash_remote')
+            ->table('countries')
+            ->whereIn('id', $countryIds)
+            ->pluck('name', 'id');
+
+        foreach ($flaggedVenues as $venue) {
+            $addressParts = array_filter([
+                $venue->physical_address,
+                $venue->suburb,
+                $venue->state,
+                $countries[$venue->country_id] ?? null,
+            ]);
+            
+            $fullAddress = implode(', ', $addressParts);
+            $this->line("{$venue->name}, {$fullAddress}");
+        }
+        
+        $this->newLine();
     }
 }
